@@ -13,6 +13,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Editing;
+using LooperAnalyzer.Compilation;
 
 namespace LooperAnalyzer
 {
@@ -21,16 +23,10 @@ namespace LooperAnalyzer
     {
         private const string title = "Optimize Linq expression";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds
-        {
-            get { return ImmutableArray.Create(LooperAnalyzerAnalyzer.DiagnosticId); }
-        }
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(LooperAnalyzerAnalyzer.DiagnosticId);
 
-        public sealed override FixAllProvider GetFixAllProvider()
-        {
-            // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/FixAllProvider.md for more information on Fix All Providers
-            return WellKnownFixAllProviders.BatchFixer;
-        }
+        // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/FixAllProvider.md for more information on Fix All Providers
+        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -59,34 +55,8 @@ namespace LooperAnalyzer
             var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
             var memberSymbol = semanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
 
-
-            SyntaxNode assign = invocationExpr;
-            while (!((assign = assign.Parent) is LocalDeclarationStatementSyntax))
-                ;
-
-            var oldTrivia = assign.GetLeadingTrivia().Last();
-
-            var leadingTriviaList = SyntaxTriviaList.Empty
-                .Add(oldTrivia)
-                .Add(SyntaxFactory.Comment("// looper-opt "))
-                .Add(SyntaxFactory.LineFeed)
-                .Add(oldTrivia);
-
-            var trailingTriviaList = SyntaxTriviaList.Empty
-                .Add(oldTrivia)
-                .Add(SyntaxFactory.LineFeed)
-                .Add(oldTrivia)
-                .Add(SyntaxFactory.Comment("// looper-opt { "))
-                .Add(SyntaxFactory.LineFeed)
-                .Add(oldTrivia)
-                .Add(SyntaxFactory.LineFeed)
-                .Add(oldTrivia)
-                .Add(SyntaxFactory.Comment("// } looper-opt "))
-                .Add(SyntaxFactory.LineFeed);
-
-            var newAssign = assign
-                .WithLeadingTrivia(leadingTriviaList)
-                .WithTrailingTrivia(trailingTriviaList);
+            var assign = invocationExpr.FirstAncestorOrSelf<LocalDeclarationStatementSyntax>();
+            var newAssign = CodeTransformer.WrapWithIfDirective(assign);
 
             // Replace the old local declaration with the new local declaration.
             var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);

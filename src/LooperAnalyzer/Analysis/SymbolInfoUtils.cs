@@ -12,7 +12,7 @@ namespace LooperAnalyzer.Analysis
     {
         private static ITypeSymbol _genericIEnumerableType;
 
-        public static void InitializeFromCompilation(Compilation compilation)
+        public static void InitializeFromCompilation(Microsoft.CodeAnalysis.Compilation compilation)
         {
             if (_genericIEnumerableType != null) return;
 

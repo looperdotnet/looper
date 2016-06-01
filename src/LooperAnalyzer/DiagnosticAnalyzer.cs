@@ -14,7 +14,7 @@ namespace LooperAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class LooperAnalyzerAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "LooperAnalyzer";
+        public const string DiagnosticId = "LOOPER";
 
         // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
         // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Localizing%20Analyzers.md for more on localization
@@ -25,7 +25,7 @@ namespace LooperAnalyzer
 
         private static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {

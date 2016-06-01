@@ -11,7 +11,7 @@ namespace LooperAnalyzer.Analysis
     {
         private static HashSet<IMethodSymbol> _whitelist;
 
-        public static void InitializeFromCompilation(Compilation compilation)
+        public static void InitializeFromCompilation(Microsoft.CodeAnalysis.Compilation compilation)
         {
             if (_whitelist != null) return;
 
