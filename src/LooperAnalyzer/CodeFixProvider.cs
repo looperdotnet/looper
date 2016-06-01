@@ -12,13 +12,14 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace LooperAnalyzer
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LooperAnalyzerCodeFixProvider)), Shared]
     public class LooperAnalyzerCodeFixProvider : CodeFixProvider
     {
-        private const string title = "Make uppercase";
+        private const string title = "Optimize Linq expression";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
@@ -40,34 +41,60 @@ namespace LooperAnalyzer
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
+            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
 
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedSolution: c => MakeUppercaseAsync(context.Document, declaration, c),
+                    createChangedDocument: c => ConvertToLoopAsync(context.Document, declaration, c),
                     equivalenceKey: title),
                 diagnostic);
         }
 
-        private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)
+        private async Task<Document> ConvertToLoopAsync(Document document, InvocationExpressionSyntax invocationExpr, CancellationToken cancellationToken)
         {
-            // Compute new uppercase name.
-            var identifierToken = typeDecl.Identifier;
-            var newName = identifierToken.Text.ToUpperInvariant();
-
-            // Get the symbol representing the type to be renamed.
+            // Find a way to pass the fix from the analyzer to code fox provider
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-            var typeSymbol = semanticModel.GetDeclaredSymbol(typeDecl, cancellationToken);
+            var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
+            var memberSymbol = semanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
 
-            // Produce a new solution that has all references to that type renamed, including the declaration.
-            var originalSolution = document.Project.Solution;
-            var optionSet = originalSolution.Workspace.Options;
-            var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, newName, optionSet, cancellationToken).ConfigureAwait(false);
 
-            // Return the new solution with the now-uppercase type name.
-            return newSolution;
+            SyntaxNode assign = invocationExpr;
+            while (!((assign = assign.Parent) is LocalDeclarationStatementSyntax))
+                ;
+
+            var oldTrivia = assign.GetLeadingTrivia().Last();
+
+            var leadingTriviaList = SyntaxTriviaList.Empty
+                .Add(oldTrivia)
+                .Add(SyntaxFactory.Comment("// looper-opt "))
+                .Add(SyntaxFactory.LineFeed)
+                .Add(oldTrivia);
+
+            var trailingTriviaList = SyntaxTriviaList.Empty
+                .Add(oldTrivia)
+                .Add(SyntaxFactory.LineFeed)
+                .Add(oldTrivia)
+                .Add(SyntaxFactory.Comment("// looper-opt { "))
+                .Add(SyntaxFactory.LineFeed)
+                .Add(oldTrivia)
+                .Add(SyntaxFactory.LineFeed)
+                .Add(oldTrivia)
+                .Add(SyntaxFactory.Comment("// } looper-opt "))
+                .Add(SyntaxFactory.LineFeed);
+
+            var newAssign = assign
+                .WithLeadingTrivia(leadingTriviaList)
+                .WithTrailingTrivia(trailingTriviaList);
+
+            // Replace the old local declaration with the new local declaration.
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+            var newRoot = oldRoot.ReplaceNode(assign, newAssign);
+
+            // Return document with transformed tree.
+            return document.WithSyntaxRoot(newRoot);
+
         }
     }
 }
