@@ -14,7 +14,7 @@ namespace LooperAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class LooperAnalyzerAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "LOOPER";
+        public const string DiagnosticId = "LO0001";
 
         // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
         // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Localizing%20Analyzers.md for more on localization
@@ -32,7 +32,7 @@ namespace LooperAnalyzer
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
             
-            // Should we register to something else?
+            // TODO: Should we register to something else?
             context.RegisterSemanticModelAction(AnalyzeSemanticModel);
         }
 
@@ -40,30 +40,14 @@ namespace LooperAnalyzer
         {
             var model = context.SemanticModel;
             
-            SymbolInfoUtils.InitializeFromCompilation(model.Compilation);
-            MethodSymbolUtils.InitializeFromCompilation(model.Compilation);
+            SymbolUtils.InitializeFromCompilation(model.Compilation);
 
-            var osv = new OptimizationCandidateVisitor(model);
-            osv.Visit(model.SyntaxTree.GetRoot());
+            var candidates = OptimizationCandidateAnalysis.GetCandidates(model);
 
-            foreach (var node in osv.Candidates) {
-                var diagnostic = Diagnostic.Create(Rule, node.GetLocation(), node.ToString());
+            foreach (var node in candidates) {
+                var diagnostic = Diagnostic.Create(Rule, node.GetLocation(), node.ToFullString());
                 context.ReportDiagnostic(diagnostic);
             }
         }
-
-        //private static void AnalyzeSymbol(SymbolAnalysisContext context)
-        //{
-        //    // TODO: Replace the following code with your own analysis, generating Diagnostic objects for any issues you find
-        //    var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
-
-        //    // Find just those named type symbols with names containing lowercase letters.
-        //    if (namedTypeSymbol.Name.ToCharArray().Any(char.IsLower)) {
-        //        // For all such symbols, produce a diagnostic.
-        //        var diagnostic = Diagnostic.Create(Rule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
-
-        //        context.ReportDiagnostic(diagnostic);
-        //    }
-        //}
     }
 }

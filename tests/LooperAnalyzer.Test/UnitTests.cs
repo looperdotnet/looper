@@ -71,7 +71,7 @@ namespace LooperAnalyzer.Test
 
         protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
-            return new LooperAnalyzerCodeFixProvider();
+            return new ReplaceWithIfDirective();
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()

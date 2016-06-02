@@ -7,37 +7,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using LooperAnalyzer.Analysis;
 
 namespace LooperAnalyzer.Compilation
 {
     static class CodeTransformer
     {
-        private const string IFDEF_IDENTIFIER = "LOOPER_OPT";
+        private static readonly ThrowStatementSyntax _throwNotImplemented =
+            ThrowStatement(
+                    ObjectCreationExpression(
+                        QualifiedName(
+                            IdentifierName("System"),
+                            IdentifierName("NotImplementedException")))
+                    .WithArgumentList(
+                        ArgumentList()));
 
-        public static SyntaxNode WrapWithIfDirective(LocalDeclarationStatementSyntax syntax)
+        public static BlockSyntax ReplaceWithIfDirective(BlockSyntax block, LocalDeclarationStatementSyntax declaration)
         {
-            var leadingTrivia =
-                SyntaxFactory.TriviaList(
-                    SyntaxFactory.Trivia(
-                        SyntaxFactory.IfDirectiveTrivia(
-                            SyntaxFactory.PrefixUnaryExpression(
-                                SyntaxKind.LogicalNotExpression,
-                                SyntaxFactory.IdentifierName(IFDEF_IDENTIFIER)),
-                            true,
-                            true,
-                            true)),
-                    SyntaxFactory.ElasticLineFeed)
-                .AddRange(syntax.GetLeadingTrivia());
+            var ifDef = declaration.GetLeadingIfDirective();
+            var elseDef = declaration.GetLeadingElseDirective();
+            var endDef = declaration.GetTrailingEndDirective();
 
-            var trailingTrivia = 
-                SyntaxFactory.TriviaList(
-                    SyntaxFactory.Trivia(SyntaxFactory.ElseDirectiveTrivia(true, false)),
-                    SyntaxFactory.Trivia(SyntaxFactory.EndIfDirectiveTrivia(true)),
-                    SyntaxFactory.ElasticLineFeed);
+            var newDeclaration = declaration.WithLeadingTrivia(ifDef);
+            var throwSyntax = _throwNotImplemented
+                .WithLeadingTrivia(elseDef)
+                .WithTrailingTrivia(endDef);
 
-            return syntax
-                .WithLeadingTrivia(leadingTrivia)
-                .WithTrailingTrivia(trailingTrivia);
+            var newBlock = block.ReplaceNode(declaration, new SyntaxNode[] {
+                newDeclaration,
+                throwSyntax
+            });
+
+            return newBlock;
+        }
+
+        public static BlockSyntax MarkWithComment(BlockSyntax block, LocalDeclarationStatementSyntax declaration)
+        {
+            var leadingTrivia = declaration.GetLeadingMarkComment();
+            var newDeclaration = declaration.WithLeadingTrivia(leadingTrivia);
+            return block.ReplaceNode(declaration, newDeclaration);
         }
     }
 }
