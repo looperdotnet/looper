@@ -36,7 +36,9 @@
     <Compile Include="Analysis\SymbolUtils.cs" />
     <Compile Include="Analysis\OptimizationCandidateAnalysis.cs" />
     <Compile Include="Analysis\TriviaUtils.cs" />
+    <Compile Include="CodeFixes\RefactorAndMarkWithComment.cs" />
     <Compile Include="CodeFixes\MarkWithComment.cs" />
+    <Compile Include="CodeFixes\RefactorAndReplaceWithIfDirective.cs" />
     <Compile Include="CodeFixes\ReplaceWithIfDirective.cs" />
     <Compile Include="Compilation\CodeTransformer.cs" />
     <Compile Include="DiagnosticAnalyzers\LooperAnalyzer.cs" />

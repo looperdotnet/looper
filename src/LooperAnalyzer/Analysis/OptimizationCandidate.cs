@@ -12,6 +12,7 @@ namespace LooperAnalyzer.Analysis
         public StatementSyntax ContainingStatement { get; private set; }
         public BlockSyntax ContainingBlock { get; private set; }
         public bool IsInvariantOptimization { get; private set; }
+        public bool NeedsRefactoring { get; private set; }
         public bool IsMarkedWithOptimizationTrivia { get; private set; }
 
         private OptimizationCandidate() { }
@@ -40,7 +41,8 @@ namespace LooperAnalyzer.Analysis
                 ContainingStatement = parentStmt,
                 ContainingBlock = block,
                 IsInvariantOptimization = parentExpr == null,
-                IsMarkedWithOptimizationTrivia = parentStmt.IsMarkedWithOptimizationTrivia(),
+                NeedsRefactoring = !(parentStmt is LocalDeclarationStatementSyntax), // TODO
+                IsMarkedWithOptimizationTrivia = parentStmt?.IsMarkedWithOptimizationTrivia() == true
             };
         }
     }

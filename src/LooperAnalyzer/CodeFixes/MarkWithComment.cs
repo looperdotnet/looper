@@ -21,9 +21,7 @@ namespace LooperAnalyzer
         private const string title = "Mark with comment for optimization";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
-            ImmutableArray.Create(
-                LooperAnalyzerAnalyzer.InvariantOptimizationDiagnosticId,
-                LooperAnalyzerAnalyzer.UnsafeOptimizationDiagnosticId);
+            ImmutableArray.Create(LooperAnalyzerAnalyzer.InvariantOptimizationDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -34,7 +32,9 @@ namespace LooperAnalyzer
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
+            var declaration = root.FindNode(diagnosticSpan) as InvocationExpressionSyntax;
+
+            if (declaration == null) return;
 
             context.RegisterCodeFix(
                             CodeAction.Create(
@@ -49,7 +49,7 @@ namespace LooperAnalyzer
             var semanticModel = await document.GetSemanticModelAsync(c);
 
             var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
-            var newBlock = CodeTransformer.MarkWithComment(candidate.ContainingBlock, candidate.ContainingStatement);
+            var newBlock = CodeTransformer.MarkWithComment(candidate);
 
             // Replace the old local declaration with the new local declaration.
             var oldRoot = await document.GetSyntaxRootAsync(c);

@@ -15,13 +15,13 @@ using LooperAnalyzer.Analysis;
 
 namespace LooperAnalyzer
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReplaceWithIfDirective)), Shared]
-    public class ReplaceWithIfDirective : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(RefactorAndReplaceWithIfDirective)), Shared]
+    public class RefactorAndReplaceWithIfDirective : CodeFixProvider
     {
-        private const string title = "Replace with conditional optimization";
+        private const string title = "Refactor and replace with conditional optimization";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
-            ImmutableArray.Create(LooperAnalyzerAnalyzer.InvariantOptimizationDiagnosticId);
+            ImmutableArray.Create(LooperAnalyzerAnalyzer.UnsafeOptimizationDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -50,9 +50,7 @@ namespace LooperAnalyzer
             var semanticModel = await document.GetSemanticModelAsync(c);
 
             var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
-            var newBlock = candidate.NeedsRefactoring 
-                ? CodeTransformer.RefactorAndReplaceWithIfDirective(candidate)
-                : CodeTransformer.ReplaceWithIfDirective(candidate);
+            var newBlock = CodeTransformer.RefactorAndReplaceWithIfDirective(candidate);
 
             // Replace the old local declaration with the new local declaration.
             var oldRoot = await document.GetSyntaxRootAsync(c);
