@@ -48,7 +48,7 @@ namespace LooperAnalyzer.Analysis
             return false;
         }
 
-        public static SyntaxTriviaList GetLeadingIfDirective(this LocalDeclarationStatementSyntax declaration)
+        public static SyntaxTriviaList GetLeadingIfDirective(this StatementSyntax declaration)
         {
             if (declaration.GetLeadingTrivia().All(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia)))
                 return TriviaList().Add(_ifDirective).Add(ElasticLineFeed).AddRange(declaration.GetLeadingTrivia());
@@ -56,17 +56,17 @@ namespace LooperAnalyzer.Analysis
                 return declaration.GetLeadingTrivia().Add(_ifDirective).Add(ElasticCarriageReturnLineFeed);
         }
 
-        public static SyntaxTriviaList GetLeadingElseDirective(this LocalDeclarationStatementSyntax declaration)
+        public static SyntaxTriviaList GetLeadingElseDirective(this StatementSyntax declaration)
         {
             return TriviaList(_elseDirective, ElasticLineFeed);
         }
 
-        public static SyntaxTriviaList GetTrailingEndDirective(this LocalDeclarationStatementSyntax declaration)
+        public static SyntaxTriviaList GetTrailingEndDirective(this StatementSyntax declaration)
         {
             return TriviaList(_endDirective).AddRange(declaration.GetTrailingTrivia());
         }
 
-        public static SyntaxTriviaList GetLeadingMarkComment(this LocalDeclarationStatementSyntax declaration)
+        public static SyntaxTriviaList GetLeadingMarkComment(this StatementSyntax declaration)
         {
             var leadingTrivia = declaration.GetLeadingTrivia();
             var lastWhitespace = leadingTrivia.LastOrDefault(t => t.IsKind(SyntaxKind.WhitespaceTrivia));

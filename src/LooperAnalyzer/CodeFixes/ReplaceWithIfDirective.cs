@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using LooperAnalyzer.Compilation;
+using LooperAnalyzer.Analysis;
 
 namespace LooperAnalyzer
 {
@@ -19,10 +20,10 @@ namespace LooperAnalyzer
     {
         private const string title = "Replace with conditional optimization";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(LooperAnalyzerAnalyzer.DiagnosticId);
-
-        // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/FixAllProvider.md for more information on Fix All Providers
-        //public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => 
+            ImmutableArray.Create(
+                LooperAnalyzerAnalyzer.InvariantOptimizationDiagnosticId,
+                LooperAnalyzerAnalyzer.UnsafeOptimizationDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -48,16 +49,13 @@ namespace LooperAnalyzer
         {
             // Find a way to pass the fix from the analyzer to code fox provider
             var semanticModel = await document.GetSemanticModelAsync(c);
-            var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
-            var memberSymbol = semanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
 
-            var assign = invocationExpr.FirstAncestorOrSelf<LocalDeclarationStatementSyntax>();
-            var block = assign.FirstAncestorOrSelf<BlockSyntax>();
-            var newBlock = CodeTransformer.ReplaceWithIfDirective(block, assign);
+            var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
+            var newBlock = CodeTransformer.ReplaceWithIfDirective(candidate.ContainingBlock, candidate.ContainingStatement);
 
             // Replace the old local declaration with the new local declaration.
             var oldRoot = await document.GetSyntaxRootAsync(c);
-            var newRoot = oldRoot.ReplaceNode(block, newBlock);
+            var newRoot = oldRoot.ReplaceNode(candidate.ContainingBlock, newBlock);
 
             // Return document with transformed tree.
             return document.WithSyntaxRoot(newRoot);

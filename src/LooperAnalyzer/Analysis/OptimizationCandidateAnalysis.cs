@@ -9,45 +9,43 @@ using System.Threading.Tasks;
 
 namespace LooperAnalyzer.Analysis
 {
-
-    sealed class OptimizationCandidateAnalysis : CSharpSyntaxWalker
+    /// <summary>
+    ///     Extracts candidates for optimization.
+    /// </summary>
+    internal sealed class OptimizationCandidateAnalysis : CSharpSyntaxWalker
     {
         SemanticModel _model;
-        List<InvocationExpressionSyntax> _nodes;
+        List<OptimizationCandidate> _nodes;
 
-        private IEnumerable<InvocationExpressionSyntax> Candidates => _nodes;
+        private IEnumerable<OptimizationCandidate> Candidates => _nodes;
 
         private OptimizationCandidateAnalysis(SemanticModel model)
         {
             _model = model;
-            _nodes = new List<InvocationExpressionSyntax>();
+            _nodes = new List<OptimizationCandidate>();
         }
 
-        public static IEnumerable<InvocationExpressionSyntax> GetCandidates(SemanticModel model)
+        public static IEnumerable<OptimizationCandidate> GetCandidates(SemanticModel model)
         {
             var v = new OptimizationCandidateAnalysis(model);
             v.Visit(model.SyntaxTree.GetRoot());
-            var candidates = v.Candidates
-                .Where(c => !c.FirstAncestorOrSelf<LocalDeclarationStatementSyntax>().IsMarkedWithOptimizationTrivia());
+            var candidates = v.Candidates;
 
-            return candidates;
-        }
-
-        private bool IsValidPattern(MemberAccessExpressionSyntax node)
-        {
-            var method = _model.GetSymbolInfo(node).Symbol as IMethodSymbol;
-            if (method == null) return false;
-
-            var typ = _model.GetTypeInfo(node.Expression).Type;
-
-            return typ.IsOptimizableSourceType() && method.IsOptimizableConsumerMethod();
+            return v.Candidates;
         }
 
         public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
         {
-            if (IsValidPattern(node) && node.Parent is InvocationExpressionSyntax)
-                _nodes.Add(node.Parent as InvocationExpressionSyntax);
-            base.VisitMemberAccessExpression(node);
+            var method = _model.GetSymbolInfo(node).Symbol as IMethodSymbol;
+            if (method?.IsOptimizableConsumerMethod() == true) {
+
+                var typ = _model.GetTypeInfo(node.Expression).Type;
+                var invocation = node.Parent as InvocationExpressionSyntax;
+
+                if (typ.IsOptimizableSourceType() && invocation != null)
+                    _nodes.Add(OptimizationCandidate.FromInvocation(invocation));
+            }
+            base.VisitMemberAccessExpression(node); // What to do with nested?
         }
     }
 }

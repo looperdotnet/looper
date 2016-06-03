@@ -23,7 +23,7 @@ namespace LooperAnalyzer.Compilation
                     .WithArgumentList(
                         ArgumentList()));
 
-        public static BlockSyntax ReplaceWithIfDirective(BlockSyntax block, LocalDeclarationStatementSyntax declaration)
+        public static BlockSyntax ReplaceWithIfDirective(BlockSyntax block, StatementSyntax declaration)
         {
             var ifDef = declaration.GetLeadingIfDirective();
             var elseDef = declaration.GetLeadingElseDirective();
@@ -42,7 +42,7 @@ namespace LooperAnalyzer.Compilation
             return newBlock;
         }
 
-        public static BlockSyntax MarkWithComment(BlockSyntax block, LocalDeclarationStatementSyntax declaration)
+        public static BlockSyntax MarkWithComment(BlockSyntax block, StatementSyntax declaration)
         {
             var leadingTrivia = declaration.GetLeadingMarkComment();
             var newDeclaration = declaration.WithLeadingTrivia(leadingTrivia);

@@ -32,13 +32,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Analysis\OptimizationCandidate.cs" />
     <Compile Include="Analysis\SymbolUtils.cs" />
     <Compile Include="Analysis\OptimizationCandidateAnalysis.cs" />
     <Compile Include="Analysis\TriviaUtils.cs" />
     <Compile Include="CodeFixes\MarkWithComment.cs" />
     <Compile Include="CodeFixes\ReplaceWithIfDirective.cs" />
     <Compile Include="Compilation\CodeTransformer.cs" />
-    <Compile Include="DiagnosticAnalyzers\DiagnosticAnalyzer.cs" />
+    <Compile Include="DiagnosticAnalyzers\LooperAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>

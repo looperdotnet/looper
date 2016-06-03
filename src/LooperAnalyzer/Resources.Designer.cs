@@ -62,29 +62,56 @@ namespace LooperAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Linq expression can be optimized to a loop.
+        ///   Looks up a localized string similar to Linq expression may be optimized to a loop..
         /// </summary>
-        internal static string AnalyzerDescription {
+        internal static string InvariantOptimizationAnalyzerDescription {
             get {
-                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
+                return ResourceManager.GetString("InvariantOptimizationAnalyzerDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Linq expression &apos;{0}&apos; can be optimized.
+        ///   Looks up a localized string similar to Linq expression &apos;{0}&apos; can be optimized to a loop..
         /// </summary>
-        internal static string AnalyzerMessageFormat {
+        internal static string InvariantOptimizationAnalyzerMessageFormat {
             get {
-                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
+                return ResourceManager.GetString("InvariantOptimizationAnalyzerMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Linq expression can be optimized..
+        ///   Looks up a localized string similar to Linq expression may be optimized to a loop..
         /// </summary>
-        internal static string AnalyzerTitle {
+        internal static string InvariantOptimizationAnalyzerTitle {
             get {
-                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
+                return ResourceManager.GetString("InvariantOptimizationAnalyzerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Linq expression can be optimized to a loop if refactored first..
+        /// </summary>
+        internal static string UnsafeOptimizationAnalyzerDescription {
+            get {
+                return ResourceManager.GetString("UnsafeOptimizationAnalyzerDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Linq expression &apos;{0}&apos; can be optimized to a loop if refactored first..
+        /// </summary>
+        internal static string UnsafeOptimizationAnalyzerMessageFormat {
+            get {
+                return ResourceManager.GetString("UnsafeOptimizationAnalyzerMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potential optimization..
+        /// </summary>
+        internal static string UnsafeOptimizationAnalyzerTitle {
+            get {
+                return ResourceManager.GetString("UnsafeOptimizationAnalyzerTitle", resourceCulture);
             }
         }
     }

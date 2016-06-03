@@ -63,6 +63,7 @@ namespace LooperAnalyzer.Test.Scripts
 
             var root = syntaxTree.GetRoot();
 
+            
 
             var w = new Walker();
             w.Visit(root);

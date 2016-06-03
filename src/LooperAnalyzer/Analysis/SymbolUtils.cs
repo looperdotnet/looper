@@ -18,11 +18,22 @@ namespace LooperAnalyzer.Analysis
 
             var whitelistNames = new HashSet<string>
             {
-                nameof(Enumerable.Sum),
                 nameof(Enumerable.First),
                 nameof(Enumerable.FirstOrDefault),
                 nameof(Enumerable.Single),
                 nameof(Enumerable.SingleOrDefault),
+                nameof(Enumerable.Any),
+                nameof(Enumerable.Average),
+                nameof(Enumerable.Count),
+                nameof(Enumerable.ElementAt),
+                nameof(Enumerable.ElementAtOrDefault),
+                nameof(Enumerable.Last),
+                nameof(Enumerable.LastOrDefault),
+                nameof(Enumerable.Max),
+                nameof(Enumerable.Min),
+                nameof(Enumerable.Single),
+                nameof(Enumerable.SingleOrDefault),
+                nameof(Enumerable.Sum),
                 nameof(Enumerable.ToArray),
                 nameof(Enumerable.ToList),
             };
