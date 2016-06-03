@@ -12,7 +12,7 @@ using LooperAnalyzer.Analysis;
 namespace LooperAnalyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class LooperAnalyzerAnalyzer : DiagnosticAnalyzer
+    public class LooperDiagnosticAnalyzer : DiagnosticAnalyzer
     {
         public const string InvariantOptimizationDiagnosticId = "LO0001";
         public const string UnsafeOptimizationDiagnosticId = "LO0002";

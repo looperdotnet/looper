@@ -76,7 +76,7 @@ namespace LooperAnalyzer.Test
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new LooperAnalyzerAnalyzer();
+            return new LooperDiagnosticAnalyzer();
         }
     }
 }

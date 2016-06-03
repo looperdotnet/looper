@@ -21,7 +21,7 @@ namespace LooperAnalyzer
         private const string title = "Mark with comment for optimization";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
-            ImmutableArray.Create(LooperAnalyzerAnalyzer.InvariantOptimizationDiagnosticId);
+            ImmutableArray.Create(LooperDiagnosticAnalyzer.InvariantOptimizationDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

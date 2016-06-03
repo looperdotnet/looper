@@ -7,6 +7,9 @@ namespace LooperAnalyzer.Analysis
 {
     internal sealed class OptimizationCandidate
     {
+        private SyntaxAnnotation _invocationAnn = new SyntaxAnnotation("invc");
+        private SyntaxAnnotation _statementAnn = new SyntaxAnnotation("stmt");
+
         public InvocationExpressionSyntax Invocation { get; private set; }
         public string ConsumerMethodName { get; private set; }
         public StatementSyntax ContainingStatement { get; private set; }
