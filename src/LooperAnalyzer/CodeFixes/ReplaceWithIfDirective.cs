@@ -51,8 +51,8 @@ namespace LooperAnalyzer
 
             var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
             var newBlock = candidate.NeedsRefactoring 
-                ? CodeTransformer.RefactorAndReplaceWithIfDirective(candidate)
-                : CodeTransformer.ReplaceWithIfDirective(candidate);
+                ? CodeTransformer.RefactorAndMarkWithIfDirective(candidate)
+                : CodeTransformer.MarkWithIfDirective(candidate);
 
             // Replace the old local declaration with the new local declaration.
             var oldRoot = await document.GetSyntaxRootAsync(c);

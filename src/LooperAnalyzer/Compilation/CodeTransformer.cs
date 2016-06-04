@@ -17,28 +17,15 @@ namespace LooperAnalyzer.Compilation
         private static readonly ThrowStatementSyntax _throwNotImplemented =
             ThrowStatement(
                     ObjectCreationExpression(
-                        QualifiedName(
-                            IdentifierName("System"),
-                            IdentifierName("NotImplementedException")))
-                    .WithArgumentList(
-                        ArgumentList()));
+                        QualifiedName(IdentifierName("System"),IdentifierName("NotImplementedException")))
+                    .WithArgumentList(ArgumentList()));
 
-        private static readonly SyntaxAnnotation _invAnn = new SyntaxAnnotation("invocation");
-        private static readonly SyntaxAnnotation _oldStmtAnn = new SyntaxAnnotation("statement");
-        private static readonly SyntaxAnnotation _assignmentAnn = new SyntaxAnnotation("assignment");
+        private static readonly SyntaxAnnotation _refactoredExpression = new SyntaxAnnotation("refactored-expression");
 
-        internal static BlockSyntax Refactor(OptimizationCandidate candidate)
+        internal static Tuple<BlockSyntax, StatementSyntax> RefactorAndAnnotate(OptimizationCandidate candidate)
         {
-            var annotatedInvocation = candidate.Invocation
-                .WithAdditionalAnnotations(_invAnn);
-
-            var annotatedStatement = candidate.ContainingStatement
-                .ReplaceNode(candidate.Invocation, annotatedInvocation)
-                .WithAdditionalAnnotations(_oldStmtAnn);
-
-            var block = candidate.ContainingBlock
-                .ReplaceNode(candidate.ContainingStatement, annotatedStatement);
-            annotatedStatement = block.GetAnnotatedNodes(_oldStmtAnn).Single() as StatementSyntax;
+            var oldStatement = candidate.ContainingStatement;
+            var invocation = candidate.Invocation;
 
             var freshVarName = char.ToLowerInvariant(candidate.ConsumerMethodName[0]) + candidate.ConsumerMethodName.Substring(1);
             var varStmt = LocalDeclarationStatement(
@@ -49,83 +36,60 @@ namespace LooperAnalyzer.Compilation
                                         VariableDeclarator(
                                             Identifier(freshVarName))
                                         .WithInitializer(
-                                            EqualsValueClause(candidate.Invocation)))))
+                                            EqualsValueClause(invocation)))))
                         .NormalizeWhitespace()
                         .WithLeadingTrivia(
-                            annotatedStatement.GetLeadingTrivia()
-                            .AddRange(annotatedInvocation.GetLeadingTrivia()))
-                        .WithAdditionalAnnotations(_assignmentAnn);
+                            oldStatement.GetLeadingTrivia()
+                            .AddRange(invocation.GetLeadingTrivia()))
+                        .WithAdditionalAnnotations(_refactoredExpression) as StatementSyntax;
 
-            var newBlock = block.InsertNodesBefore(annotatedStatement, new[] { varStmt });
+            var newStatement = oldStatement.ReplaceNode(invocation, IdentifierName(freshVarName));
 
-            annotatedInvocation = newBlock.GetAnnotatedNodes(_invAnn).Single() as InvocationExpressionSyntax;
+            var newBlock = candidate.ContainingBlock.ReplaceNode(oldStatement, new [] { varStmt, newStatement });
 
-            return newBlock.ReplaceNode(annotatedInvocation, IdentifierName(freshVarName));
+            return Tuple.Create(newBlock, newBlock.GetAnnotatedNodes(_refactoredExpression).Single() as StatementSyntax);
         }
 
+        internal static BlockSyntax Refactor(OptimizationCandidate candidate) => RefactorAndAnnotate(candidate).Item1;
 
-        public static BlockSyntax MarkWithComment(OptimizationCandidate candidate)
+        private static BlockSyntax MarkWithComment(StatementSyntax stmt, BlockSyntax block)
         {
-            var block = candidate.ContainingBlock;
-            var declaration = candidate.ContainingStatement;
-            var leadingTrivia = declaration.GetLeadingMarkComment();
-            var newDeclaration = declaration.WithLeadingTrivia(leadingTrivia);
-            return block.ReplaceNode(declaration, newDeclaration);
+            var leadingTrivia = stmt.MakeLeadingMarkComment();
+            var newStmt = stmt.WithLeadingTrivia(leadingTrivia);
+            return block.ReplaceNode(stmt, newStmt);
         }
 
+        public static BlockSyntax MarkWithComment(OptimizationCandidate candidate) => 
+            MarkWithComment(candidate.ContainingStatement, candidate.ContainingBlock);
+        
         internal static BlockSyntax RefactorAndMarkWithComment(OptimizationCandidate candidate)
         {
-            var refactored = Refactor(candidate);
-            var varStmt = refactored.GetAnnotatedNodes(_assignmentAnn).Single() as LocalDeclarationStatementSyntax;
-
-            var newStmt = varStmt.WithLeadingTrivia(varStmt.GetLeadingMarkComment());
-
-            var newBlock = refactored.ReplaceNode(varStmt, newStmt);
-
-            return newBlock;
+            var refactored = RefactorAndAnnotate(candidate);
+            return MarkWithComment(refactored.Item2, refactored.Item1);
         }
 
-        public static BlockSyntax ReplaceWithIfDirective(OptimizationCandidate candidate)
+        private static BlockSyntax MarkWithIfDirective(StatementSyntax stmt, StatementSyntax elseStmt, BlockSyntax block)
         {
-            var block = candidate.ContainingBlock;
-            var declaration = candidate.ContainingStatement;
-            var ifDef = declaration.GetLeadingIfDirective();
-            var elseDef = declaration.GetLeadingElseDirective();
-            var endDef = declaration.GetTrailingEndDirective();
+            var ifDef   = stmt.MakeLeadingIfDirective();
+            var elseDef = stmt.MakeLeadingElseDirective();
+            var endDef  = stmt.MakeTrailingEndDirective();
+            var ifStmt  = stmt.WithLeadingTrivia(ifDef);
 
-            var newDeclaration = declaration.WithLeadingTrivia(ifDef);
-            var throwSyntax = _throwNotImplemented
+            elseStmt = elseStmt
                 .WithLeadingTrivia(elseDef)
                 .WithTrailingTrivia(endDef);
 
-            var newBlock = block.ReplaceNode(declaration, new SyntaxNode[] {
-                newDeclaration,
-                throwSyntax
-            });
-
-            return newBlock;
+            return block.ReplaceNode(stmt, new [] { ifStmt, elseStmt });
         }
 
-        internal static BlockSyntax RefactorAndReplaceWithIfDirective(OptimizationCandidate candidate)
+        public static BlockSyntax MarkWithIfDirective(OptimizationCandidate candidate) => 
+            MarkWithIfDirective(candidate.ContainingStatement, _throwNotImplemented, candidate.ContainingBlock);
+        
+
+        internal static BlockSyntax RefactorAndMarkWithIfDirective(OptimizationCandidate candidate)
         {
-            var refactored = Refactor(candidate);
-            var varStmt = refactored.GetAnnotatedNodes(_assignmentAnn).Single() as LocalDeclarationStatementSyntax;
-
-            var ifDef = varStmt.GetLeadingIfDirective();
-            var elseDef = varStmt.GetLeadingElseDirective();
-            var endDef = varStmt.GetTrailingEndDirective();
-
-            var newStmt = varStmt.WithLeadingTrivia(ifDef);
-
-            var throwSyntax = _throwNotImplemented
-                .WithLeadingTrivia(elseDef)
-                .WithTrailingTrivia(endDef);
-
-
-            var newBlock = refactored.InsertNodesAfter(varStmt, new StatementSyntax[] { throwSyntax });
-
-            varStmt = newBlock.GetAnnotatedNodes(_assignmentAnn).Single() as LocalDeclarationStatementSyntax;
-            return newBlock.ReplaceNode(varStmt, newStmt);
+            var refactored = RefactorAndAnnotate(candidate);
+            return MarkWithIfDirective(refactored.Item2, _throwNotImplemented, refactored.Item1);
         }
     }
 }
