@@ -4,6 +4,8 @@
     open Microsoft.CodeAnalysis.CSharp.Syntax
 
     type QueryExpr =
+        // Producer
+        | SourceIdentifierName of IdentifierNameSyntax
         // Intermediate 
         | Select of SimpleLambdaExpressionSyntax * QueryExpr
         | SelectMany of (ParameterSyntax * QueryExpr) * QueryExpr

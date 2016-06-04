@@ -8,7 +8,9 @@
     module QueryTransformer = 
 
         let producerMatch (node : SyntaxNode) : QueryExpr =
-            failwith "oups" 
+            match node with
+            | IdentifierName _ -> SourceIdentifierName (node :?> IdentifierNameSyntax)
+            | _ -> failwith "oups" 
 
         let rec intermediateMatch (node : SyntaxNode) : QueryExpr = 
             match node with 
