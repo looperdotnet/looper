@@ -9,10 +9,11 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Looper.Core</RootNamespace>
     <AssemblyName>Looper.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Looper.Core</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,6 +54,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="QueryExpr.fs" />
     <None Include="paket.references" />
+    <Compile Include="SyntaxPatterns.fs" />
+    <Compile Include="QueryTransformer.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
