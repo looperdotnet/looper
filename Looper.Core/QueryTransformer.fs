@@ -7,16 +7,20 @@
 
     module QueryTransformer = 
 
-        let intermediateMatch (node : SyntaxNode) : QueryExpr = 
+        let producerMatch (node : SyntaxNode) : QueryExpr =
+            failwith "oups" 
+
+        let rec intermediateMatch (node : SyntaxNode) : QueryExpr = 
             match node with 
-            | InvocationExpression (MemberAccessExpression (IdentifierName "Select", expr), args) ->
-                failwith "oups" 
-            | _ -> failwith "oups" 
+            | InvocationExpression (MemberAccessExpression (IdentifierName "Select", expr), [SimpleLambdaExpression (param, body)]) ->
+                let lambda = SyntaxFactory.SimpleLambdaExpression(param, body)
+                Select (lambda, intermediateMatch expr)
+            | _ -> producerMatch node 
 
         let consumerMatch (node : SyntaxNode) : QueryExpr = 
             match node with 
             | InvocationExpression (MemberAccessExpression (IdentifierName "Sum", expr), args) ->
-                intermediateMatch expr
+                Sum (intermediateMatch expr)
             | _ -> failwith "oups" 
 
 
