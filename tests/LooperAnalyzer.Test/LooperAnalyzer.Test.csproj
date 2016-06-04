@@ -63,6 +63,10 @@
     <None Include="Scripts\Tests.csx" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Looper.Core\Looper.Core.fsproj">
+      <Project>{9f5d7067-63de-42f3-9dad-30520202abc9}</Project>
+      <Name>Looper.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\LooperAnalyzer\LooperAnalyzer.csproj">
       <Project>{FF80DCA6-4F7F-4A7C-B146-3098C948C4EC}</Project>
       <Name>LooperAnalyzer</Name>
@@ -83,6 +87,9 @@
     <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll">
       <Paket>True</Paket>
     </Analyzer>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2')">
