@@ -33,13 +33,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Analysis\OptimizationCandidate.cs" />
+    <Compile Include="Analysis\MarkedNode.cs" />
     <Compile Include="Analysis\SymbolUtils.cs" />
-    <Compile Include="Analysis\OptimizationCandidateAnalysis.cs" />
+    <Compile Include="Analysis\OptimizationCandidateAnalyzer.cs" />
+    <Compile Include="Analysis\SyntaxUtils.cs" />
     <Compile Include="Analysis\TriviaUtils.cs" />
     <Compile Include="CodeFixes\RefactorAndMarkWithComment.cs" />
     <Compile Include="CodeFixes\MarkWithComment.cs" />
-    <Compile Include="CodeFixes\RefactorAndReplaceWithIfDirective.cs" />
-    <Compile Include="CodeFixes\ReplaceWithIfDirective.cs" />
+    <Compile Include="CodeFixes\RefactorAndMarkWithIfDirective.cs" />
+    <Compile Include="CodeFixes\MarkWithIfDirective.cs" />
     <Compile Include="Compilation\CodeTransformer.cs" />
     <Compile Include="DiagnosticAnalyzers\LooperAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

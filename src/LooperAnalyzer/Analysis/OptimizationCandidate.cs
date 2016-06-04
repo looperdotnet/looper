@@ -7,9 +7,6 @@ namespace LooperAnalyzer.Analysis
 {
     internal sealed class OptimizationCandidate
     {
-        private SyntaxAnnotation _invocationAnn = new SyntaxAnnotation("invc");
-        private SyntaxAnnotation _statementAnn = new SyntaxAnnotation("stmt");
-
         public InvocationExpressionSyntax Invocation { get; private set; }
         public string ConsumerMethodName { get; private set; }
         public StatementSyntax ContainingStatement { get; private set; }
@@ -22,18 +19,17 @@ namespace LooperAnalyzer.Analysis
 
         public static OptimizationCandidate FromInvocation(InvocationExpressionSyntax node)
         {
-            Debug.Assert(node?.Expression is MemberAccessExpressionSyntax);
+            var memberExpr = node?.Expression as MemberAccessExpressionSyntax;
 
-            var consumerMethod = (node.Expression as MemberAccessExpressionSyntax).Name.ToString();
+            Debug.Assert(memberExpr != null);
+
+            var consumerMethod = memberExpr.Name.ToString();
 
             var parentExpr = node
                 .Ancestors()
                 .TakeWhile(n => !(n is BlockSyntax))
                 .FirstOrDefault(n => n is ExpressionSyntax);
-            var parentStmt = node
-                .Ancestors()
-                .OfType<StatementSyntax>()
-                .FirstOrDefault();
+            var parentStmt = node.GetParentStatement();
 
             var block = node.FirstAncestorOrSelf<BlockSyntax>();
 

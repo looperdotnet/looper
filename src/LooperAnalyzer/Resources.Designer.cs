@@ -62,6 +62,33 @@ namespace LooperAnalyzer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Marked expression is not a valid Linq expression..
+        /// </summary>
+        internal static string InvalidExpressionAnalyzerDescription {
+            get {
+                return ResourceManager.GetString("InvalidExpressionAnalyzerDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marked expression is not a valid Linq expression..
+        /// </summary>
+        internal static string InvalidExpressionAnalyzerMessageFormat {
+            get {
+                return ResourceManager.GetString("InvalidExpressionAnalyzerMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marked expression is not a valid Linq expression..
+        /// </summary>
+        internal static string InvalidExpressionAnalyzerTitle {
+            get {
+                return ResourceManager.GetString("InvalidExpressionAnalyzerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Linq expression may be optimized to a loop..
         /// </summary>
         internal static string InvariantOptimizationAnalyzerDescription {
@@ -85,6 +112,33 @@ namespace LooperAnalyzer {
         internal static string InvariantOptimizationAnalyzerTitle {
             get {
                 return ResourceManager.GetString("InvariantOptimizationAnalyzerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Linq expression is marked for optimization but cannot be optimized. This will have no affect on code generation. Linq expressions should end at consumer methods like &apos;ToArray&apos;, &apos;ToList&apos;, &apos;FirstOrDefault&apos;, etc..
+        /// </summary>
+        internal static string NoConsumerAnalyzerDescription {
+            get {
+                return ResourceManager.GetString("NoConsumerAnalyzerDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Linq expression is marked but cannot be optimized..
+        /// </summary>
+        internal static string NoConsumerAnalyzerMessageFormat {
+            get {
+                return ResourceManager.GetString("NoConsumerAnalyzerMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Linq expression is marked but no suitable consumer found..
+        /// </summary>
+        internal static string NoConsumerAnalyzerTitle {
+            get {
+                return ResourceManager.GetString("NoConsumerAnalyzerTitle", resourceCulture);
             }
         }
         

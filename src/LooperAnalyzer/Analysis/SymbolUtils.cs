@@ -10,6 +10,7 @@ namespace LooperAnalyzer.Analysis
     internal static class SymbolUtils
     {
         private static HashSet<IMethodSymbol> _whitelist;
+        private static HashSet<IMethodSymbol> _allLinqMethods;
         private static ITypeSymbol _genericIEnumerableType;
 
         public static void InitializeFromCompilation(Microsoft.CodeAnalysis.Compilation compilation)
@@ -38,11 +39,15 @@ namespace LooperAnalyzer.Analysis
                 nameof(Enumerable.ToList),
             };
 
-            var filtered = compilation.GetTypeByMetadataName("System.Linq.Enumerable")
+            var methods = compilation
+                .GetTypeByMetadataName("System.Linq.Enumerable")
                 .GetMembers()
-                .Where(s => whitelistNames.Contains(s.Name))
                 .OfType<IMethodSymbol>();
 
+            var filtered = methods
+                .Where(s => whitelistNames.Contains(s.Name));
+
+            _allLinqMethods = new HashSet<IMethodSymbol>(methods);
             _whitelist = new HashSet<IMethodSymbol>(filtered);
             
             _genericIEnumerableType = compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
@@ -60,6 +65,8 @@ namespace LooperAnalyzer.Analysis
 
         public static bool IsOptimizableSourceType(this ITypeSymbol type) => type.IsArrayType() || type.IsIEnumerableType();
 
+        public static bool IsLinqMethod(this IMethodSymbol method) => 
+            _allLinqMethods.Contains(method.IsExtensionMethod ? method.ReducedFrom : method);
 
     }
 }

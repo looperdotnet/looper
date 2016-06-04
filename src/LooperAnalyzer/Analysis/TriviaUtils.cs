@@ -12,8 +12,8 @@ namespace LooperAnalyzer.Analysis
 {
     internal static class TriviaUtils
     {
-        public const string IFDEF_IDENTIFIER = "LOOPER_OPT";
-        public const string MARKER_COMMENT = "// looper-opt";
+        public const string IFDEF_IDENTIFIER = "LOOPER";
+        public const string MARKER_COMMENT = "// looper";
         
         private static readonly SyntaxTrivia _markerComment = Comment(MARKER_COMMENT);
 
@@ -35,7 +35,7 @@ namespace LooperAnalyzer.Analysis
                     return true;
                 if(trivia.IsDirective && trivia.IsKind(SyntaxKind.IfDirectiveTrivia)) {
                     var cond = (trivia.GetStructure() as ConditionalDirectiveTriviaSyntax).Condition;
-                    var nodes = cond?
+                    var nodes = cond? // TODO
                         .DescendantNodesAndSelf()
                         .OfType<PrefixUnaryExpressionSyntax>()
                         .SelectMany(n => n.DescendantNodes())
