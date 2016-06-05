@@ -41,7 +41,7 @@
 
         let (|VariableDeclaration|_|) (node : SyntaxNode) =
             match node with
-            | :? VariableDeclarationSyntax as node -> Some(node.Type, node.Variables)
+            | :? VariableDeclarationSyntax as node -> Some(node.Type, node.Variables |>  Seq.toList)
             | _ -> None
 
 

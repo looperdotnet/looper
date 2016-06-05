@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="QueryExpr.fs" />
-    <Compile Include="SyntaxPatterns.fs" />
+    <Compile Include="Patterns.fs" />
     <Compile Include="QueryTransformer.fs" />
     <None Include="paket.references" />
   </ItemGroup>

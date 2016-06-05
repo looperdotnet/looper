@@ -7,30 +7,34 @@
 
     module QueryTransformer = 
 
-        let producerMatch (node : SyntaxNode) : QueryExpr =
-            match node with
-            | IdentifierName _ -> SourceIdentifierName (node :?> IdentifierNameSyntax)
-            | _ -> failwith "oups" 
+        let producerMatch (node : SyntaxNode) : QueryExpr option =
+            match node with 
+            | IdentifierName _ -> Some (SourceIdentifierName (node :?> IdentifierNameSyntax))
+            | _ -> None
 
-        let rec intermediateMatch (node : SyntaxNode) : QueryExpr = 
+        let rec intermediateMatch (node : SyntaxNode) : QueryExpr option = 
             match node with 
             | InvocationExpression (MemberAccessExpression (IdentifierName "Select", expr), [SimpleLambdaExpression (param, body)]) ->
                 let lambda = SyntaxFactory.SimpleLambdaExpression(param, body)
-                Select (lambda, intermediateMatch expr)
+                intermediateMatch expr |> Option.map (fun expr -> Select (lambda, expr))
             | _ -> producerMatch node 
 
-        let consumerMatch (node : SyntaxNode) : QueryExpr = 
+        let consumerMatch (node : SyntaxNode) : QueryExpr option = 
             match node with 
             | InvocationExpression (MemberAccessExpression (IdentifierName "Sum", expr), args) ->
-                Sum (intermediateMatch expr)
-            | _ -> failwith "oups" 
+                intermediateMatch expr |> Option.map Sum 
+            | _ -> None
 
 
-        let toQueryExpr (node : SyntaxNode) : QueryExpr =
+        let toQueryExpr (node : SyntaxNode) : QueryExpr option =
             consumerMatch node
 
-        let toStmtQueryExpr (node : SyntaxNode) : StmtQueryExpr =
+        let (|QueryExpr|_|) (node : SyntaxNode) =
+            toQueryExpr node
+
+        let toStmtQueryExpr (node : SyntaxNode) : StmtQueryExpr option =
             match node with
-            | LocalDeclarationStatement (modifiers, declaration) -> 
-                failwith "oups"
-            | _ -> failwith "oups" 
+            | LocalDeclarationStatement (modifiers, VariableDeclaration (t, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr expr))])) -> 
+                let identifierNameSyntax = SyntaxFactory.IdentifierName(identifier)
+                Some (Assign (identifierNameSyntax, expr))
+            | _ -> None
