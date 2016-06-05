@@ -50,8 +50,12 @@ namespace LooperAnalyzer.Test
             var model = compilation.GetSemanticModel(tree);
             var syntaxTree = model.SyntaxTree;
             var root = syntaxTree.GetRoot();
-            var tests = root.DescendantNodes().OfType<InvocationExpressionSyntax>().ToArray();
-            var queryExpr = QueryTransformer.toQueryExpr(tests[0]);
+            var tests = root.DescendantNodes().OfType<BlockSyntax>().ToArray();
+            foreach (var stmt in tests[0].Statements)
+            {
+                QueryTransformer.toStmtQueryExpr(stmt);
+            }
+            //var queryExpr = QueryTransformer.toQueryExpr(tests[0]);
         }
 
         //No diagnostics expected to show up

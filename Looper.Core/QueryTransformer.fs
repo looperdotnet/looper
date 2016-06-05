@@ -28,3 +28,9 @@
 
         let toQueryExpr (node : SyntaxNode) : QueryExpr =
             consumerMatch node
+
+        let toStmtQueryExpr (node : SyntaxNode) : StmtQueryExpr =
+            match node with
+            | LocalDeclarationStatement (modifiers, declaration) -> 
+                failwith "oups"
+            | _ -> failwith "oups" 

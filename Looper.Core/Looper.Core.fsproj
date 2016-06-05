@@ -53,9 +53,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="QueryExpr.fs" />
-    <None Include="paket.references" />
     <Compile Include="SyntaxPatterns.fs" />
     <Compile Include="QueryTransformer.fs" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

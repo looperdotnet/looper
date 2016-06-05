@@ -15,3 +15,6 @@
         | ToList of QueryExpr
         | Sum of QueryExpr
         | Count of QueryExpr
+
+    and StmtQueryExpr = 
+        | Assign of IdentifierNameSyntax * QueryExpr

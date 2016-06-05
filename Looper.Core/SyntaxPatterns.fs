@@ -27,4 +27,31 @@
             | :? IdentifierNameSyntax as node -> Some (node.Identifier.ValueText)
             | _ -> None
 
+        let (|Block|_|) (node : SyntaxNode) =
+            match node with
+            | :? BlockSyntax as node -> Some(node.Statements)
+            | _ -> None
+
+
+        let (|LocalDeclarationStatement|_|) (node : SyntaxNode) =
+            match node with
+            | :? LocalDeclarationStatementSyntax as node -> Some(node.Modifiers, node.Declaration)
+            | _ -> None
+
+
+        let (|VariableDeclaration|_|) (node : SyntaxNode) =
+            match node with
+            | :? VariableDeclarationSyntax as node -> Some(node.Type, node.Variables)
+            | _ -> None
+
+
+        let (|VariableDeclarator|_|) (node : SyntaxNode) =
+            match node with
+            | :? VariableDeclaratorSyntax as node -> Some(node.Identifier, node.ArgumentList, node.Initializer)
+            | _ -> None
     
+
+        let (|EqualsValueClause|_|) (node : SyntaxNode) =
+            match node with
+            | :? EqualsValueClauseSyntax as node -> Some(node.Value)
+            | _ -> None
