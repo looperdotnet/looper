@@ -68,9 +68,9 @@
       <Project>{FF80DCA6-4F7F-4A7C-B146-3098C948C4EC}</Project>
       <Name>LooperAnalyzer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Looper\Looper.fsproj">
+    <ProjectReference Include="..\..\src\Looper\Looper.Core.fsproj">
       <Project>{778e24c6-e402-4ed3-9230-2feffb2a6d68}</Project>
-      <Name>Looper</Name>
+      <Name>Looper.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
