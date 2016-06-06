@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{2546E642-E2EC-4BCB-BC59-531C06613E6A}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,6 +13,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D69D41A4-7C9A-4873-B288-61817C29C659}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LooperAnalyzer", "src\LooperAnalyzer\LooperAnalyzer.csproj", "{FF80DCA6-4F7F-4A7C-B146-3098C948C4EC}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Looper.Core", "src\Looper.Core\Looper.Core.fsproj", "{9F5D7067-63DE-42F3-9DAD-30520202ABC9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LooperAnalyzer.Vsix", "src\LooperAnalyzer.Vsix\LooperAnalyzer.Vsix.csproj", "{03B874EE-D61D-43D9-A5A2-A6BB449DA0F9}"
 EndProject
@@ -34,8 +36,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{A0B4
 		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Looper.Core", "Looper.Core\Looper.Core.fsproj", "{9F5D7067-63DE-42F3-9DAD-30520202ABC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
