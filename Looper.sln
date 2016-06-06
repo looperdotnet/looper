@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D69D41A4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LooperAnalyzer", "src\LooperAnalyzer\LooperAnalyzer.csproj", "{FF80DCA6-4F7F-4A7C-B146-3098C948C4EC}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Looper.Core", "src\Looper.Core\Looper.Core.fsproj", "{9F5D7067-63DE-42F3-9DAD-30520202ABC9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LooperAnalyzer.Vsix", "src\LooperAnalyzer.Vsix\LooperAnalyzer.Vsix.csproj", "{03B874EE-D61D-43D9-A5A2-A6BB449DA0F9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LooperAnalyzer.Test", "tests\LooperAnalyzer.Test\LooperAnalyzer.Test.csproj", "{CA424192-81B1-4CC7-8618-90EBEC2117D8}"
@@ -37,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{A0B4
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Looper", "src\Looper\Looper.fsproj", "{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,10 +55,10 @@ Global
 		{CA424192-81B1-4CC7-8618-90EBEC2117D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA424192-81B1-4CC7-8618-90EBEC2117D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA424192-81B1-4CC7-8618-90EBEC2117D8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F5D7067-63DE-42F3-9DAD-30520202ABC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F5D7067-63DE-42F3-9DAD-30520202ABC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F5D7067-63DE-42F3-9DAD-30520202ABC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F5D7067-63DE-42F3-9DAD-30520202ABC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +67,6 @@ Global
 		{FF80DCA6-4F7F-4A7C-B146-3098C948C4EC} = {E2FF5DB7-B8B6-4319-829B-7B5EF773C527}
 		{03B874EE-D61D-43D9-A5A2-A6BB449DA0F9} = {E2FF5DB7-B8B6-4319-829B-7B5EF773C527}
 		{CA424192-81B1-4CC7-8618-90EBEC2117D8} = {D69D41A4-7C9A-4873-B288-61817C29C659}
-		{9F5D7067-63DE-42F3-9DAD-30520202ABC9} = {E2FF5DB7-B8B6-4319-829B-7B5EF773C527}
+		{778E24C6-E402-4ED3-9230-2FEFFB2A6D68} = {E2FF5DB7-B8B6-4319-829B-7B5EF773C527}
 	EndGlobalSection
 EndGlobal
