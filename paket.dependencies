@@ -1,5 +1,6 @@
 source https://www.nuget.org/api/v2/
 
+nuget FAKE
 nuget NuGet.CommandLine
 nuget Microsoft.CodeAnalysis.Analyzers 1.1.0 framework: portable45-net45+win8
 nuget Microsoft.CodeAnalysis 1.1.0
