@@ -8,7 +8,7 @@
     <ProjectGuid>778e24c6-e402-4ed3-9230-2feffb2a6d68</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Looper</RootNamespace>
-    <AssemblyName>Looper</AssemblyName>
+    <AssemblyName>Looper.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetProfile>netcore</TargetProfile>
@@ -24,7 +24,7 @@
     <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\Debug\Looper.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\Looper.Core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +33,7 @@
     <OutputPath>..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\Release\Looper.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\Release\Looper.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
