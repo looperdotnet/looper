@@ -15,7 +15,7 @@ Target "Clean" (fun _ -> CleanDirs [buildDir])
 
 Target "Core" (fun _ ->
     !! "src/**/Looper.Core.fsproj"
-        |> MSBuildDebug buildDir "Build"
+        |> MSBuildDebug "" "Build"
         |> Log "AppBuild-Output: "
 )
 
