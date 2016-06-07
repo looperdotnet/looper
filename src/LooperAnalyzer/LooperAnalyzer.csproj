@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Looper\Looper.Core.fsproj">
+    <ProjectReference Include="..\Looper.Core\Looper.Core.fsproj">
       <Project>{778e24c6-e402-4ed3-9230-2feffb2a6d68}</Project>
       <Name>Looper.Core</Name>
     </ProjectReference>

@@ -35,7 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{A0B4
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Looper.Core", "src\Looper\Looper.Core.fsproj", "{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Looper.Core", "src\Looper.Core\Looper.Core.fsproj", "{778E24C6-E402-4ED3-9230-2FEFFB2A6D68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
