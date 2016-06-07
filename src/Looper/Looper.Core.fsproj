@@ -44,10 +44,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="QueryExpr.fs" />
-    <Compile Include="Patterns.fs" />
-    <Compile Include="QueryTransformer.fs" />
     <None Include="Script.fsx" />
+    <Compile Include="Core\QueryExpr.fs" />
+    <Compile Include="Core\Patterns.fs" />
+    <Compile Include="Core\SymbolUtils.fs" />
+    <Compile Include="Core\SyntaxUtils.fs" />
+    <Compile Include="Core\TriviaUtils.fs" />
+    <Compile Include="Analysis\MarkedNode.fs" />
+    <Compile Include="Analysis\OptimizationCandidate.fs" />
+    <Compile Include="Analysis\OptimizationCandidateAnalyzer.fs" />
+    <Compile Include="Compilation\QueryTransformer.fs" />
+    <Compile Include="Compilation\CodeTransformer.fs" />
     <None Include="paket.dependencies" />
   </ItemGroup>
   <PropertyGroup>

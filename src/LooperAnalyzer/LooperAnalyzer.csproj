@@ -38,17 +38,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Analysis\OptimizationCandidate.cs" />
-    <Compile Include="Analysis\MarkedNode.cs" />
-    <Compile Include="Analysis\SymbolUtils.cs" />
-    <Compile Include="Analysis\OptimizationCandidateAnalyzer.cs" />
-    <Compile Include="Analysis\SyntaxUtils.cs" />
-    <Compile Include="Analysis\TriviaUtils.cs" />
     <Compile Include="CodeFixes\RefactorAndMarkWithComment.cs" />
     <Compile Include="CodeFixes\MarkWithComment.cs" />
     <Compile Include="CodeFixes\RefactorAndMarkWithIfDirective.cs" />
     <Compile Include="CodeFixes\MarkWithIfDirective.cs" />
-    <Compile Include="Compilation\CodeTransformer.cs" />
     <Compile Include="DiagnosticAnalyzers\LooperAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -95,6 +88,9 @@
   </Target>
   -->
   <ItemGroup>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETCore\3.7.4.0\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Paket>True</Paket>
     </Reference>

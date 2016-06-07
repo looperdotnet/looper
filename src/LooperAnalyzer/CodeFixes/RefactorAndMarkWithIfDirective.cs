@@ -10,8 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using LooperAnalyzer.Compilation;
-using LooperAnalyzer.Analysis;
+using Looper.Core;
 
 namespace LooperAnalyzer
 {
@@ -50,11 +49,11 @@ namespace LooperAnalyzer
             var semanticModel = await document.GetSemanticModelAsync(c);
 
             var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
-            var newBlock = CodeTransformer.RefactorAndMarkWithIfDirective(candidate);
+            var newBlock = CodeTransformer.refactorAndMarkWithIfDirective(candidate);
 
             // Replace the old local declaration with the new local declaration.
             var oldRoot = await document.GetSyntaxRootAsync(c);
-            var newRoot = oldRoot.ReplaceNode(candidate.ContainingBlock, newBlock);
+            var newRoot = oldRoot.ReplaceNode(candidate.ContainingBlock.Value, newBlock);
 
             // Return document with transformed tree.
             return document.WithSyntaxRoot(newRoot);

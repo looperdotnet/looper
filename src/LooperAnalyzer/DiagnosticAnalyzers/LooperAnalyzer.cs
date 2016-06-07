@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using LooperAnalyzer.Analysis;
+using Looper.Core;
 
 namespace LooperAnalyzer
 {
@@ -59,7 +59,7 @@ namespace LooperAnalyzer
         {
             var model = context.SemanticModel;
             
-            SymbolUtils.InitializeFromCompilation(model.Compilation);
+            SymbolUtils.initializeFromCompilation(model.Compilation);
 
             var analyzer = new OptimizationCandidateAnalyzer(model);
             analyzer.Run();
@@ -71,8 +71,15 @@ namespace LooperAnalyzer
             }
 
             foreach (var node in analyzer.FalselyMarkedNodes) {
-                var rule = node.IsValidLinq ? NoConsumerRule : InvalidExpressionRule;
-                var diagnostic = Diagnostic.Create(rule, node.Expression.GetLocation());
+                Diagnostic diagnostic;
+                if (node.IsInvalidExpression) {
+                    var n = node as InvalidNode.InvalidExpression;
+                    diagnostic = Diagnostic.Create(InvalidExpressionRule, n.stmt.GetLocation());
+                } else {
+                    var n = node as InvalidNode.NoConsumer;
+                    diagnostic = Diagnostic.Create(NoConsumerRule, n.stmt.GetLocation());
+
+                }
                 context.ReportDiagnostic(diagnostic);
             }
         }
