@@ -14,7 +14,7 @@ let solutionFile = "Looper.sln"
 Target "Clean" (fun _ -> CleanDirs [buildDir])
 
 Target "Core" (fun _ ->
-    !! "src/**/Looper.Core.fsproj"
+    !! "src/**/LooperAnalyzer.csproj"
         |> MSBuildDebug "" "Build"
         |> Log "AppBuild-Output: "
 )
