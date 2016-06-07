@@ -8,9 +8,16 @@ open System
 open System.IO
 
 
-let solutionFile  = "Looper.sln"
+let buildDir = "bin"
+let solutionFile = "Looper.sln"
 
-Target "Clean" (fun _ -> CleanDirs ["bin"])
+Target "Clean" (fun _ -> CleanDirs [buildDir])
+
+Target "Core" (fun _ ->
+    !! "src/**/Looper.Core.fsproj"
+        |> MSBuildDebug buildDir "Build"
+        |> Log "AppBuild-Output: "
+)
 
 Target "Build" (fun _ ->
     !! solutionFile
@@ -21,7 +28,10 @@ Target "Build" (fun _ ->
 Target "Default" DoNothing
 
 "Clean"
-  ==> "Build"
-  ==> "Default"
+    ==> "Core"
+    ==> "Default"
+
+"Clean"
+    ==> "Build"
 
 RunTargetOrDefault "Default"
