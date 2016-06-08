@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
 using LooperAnalyzer;
@@ -9,15 +8,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
 using Looper.Core;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Xunit;
 
 namespace LooperAnalyzer.Test
 {
-    [TestClass]
     public class UnitTest : CodeFixVerifier
     {
-
-
-        [TestMethod]
+        [Fact]
         public void TestTransformer()
         {
             var tree = CSharpSyntaxTree.ParseText(
@@ -59,7 +56,7 @@ namespace LooperAnalyzer.Test
         }
 
         //No diagnostics expected to show up
-        [TestMethod]
+        [Fact]
         public void TestMethod1()
         {
             var test = @"";
@@ -68,7 +65,7 @@ namespace LooperAnalyzer.Test
         }
 
         //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
+        [Fact]
         public void TestMethod2()
         {
             var test = @"
@@ -88,7 +85,7 @@ namespace LooperAnalyzer.Test
             var expected = new DiagnosticResult
             {
                 Id = "LooperAnalyzer",
-                Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
+                Message = string.Format("Type name '{0}' contains lowercase letters", "TypeName"),
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
