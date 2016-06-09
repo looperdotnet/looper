@@ -1,7 +1,9 @@
-﻿// Learn more about F# at http://fsharp.org. See the 'F# Tutorial' project
-// for more guidance on F# programming.
-
-#I __SOURCE_DIRECTORY__
+﻿#I __SOURCE_DIRECTORY__
+#r "../../packages/System.IO/lib/netcore50/System.IO.dll"
+#r "../../packages/System.Collections/lib/netcore50/System.Collections.dll"
+#r "../../packages/System.Threading.Tasks/lib/netcore50/System.Threading.Tasks.dll"
+#r "../../packages/System.Text.Encoding/lib/netcore50/System.Text.Encoding.dll"
+#r "../../packages/System.Runtime/lib/netcore50/System.Runtime.dll"
 #r "../../packages/Microsoft.CodeAnalysis.CSharp/lib/portable-net45+win8/Microsoft.CodeAnalysis.CSharp.dll"
 #r "../../packages/Microsoft.CodeAnalysis.CSharp.Workspaces/lib/portable-net45+win8/Microsoft.CodeAnalysis.CSharp.Workspaces.dll"
 #r "../../packages/Microsoft.CodeAnalysis.Common/lib/portable-net45+win8/Microsoft.CodeAnalysis.dll"
@@ -17,7 +19,30 @@
 #r "../../packages/System.Reflection.Metadata/lib/portable-net45+win8/System.Reflection.Metadata.dll"
 #r "../../bin/Debug/Looper.Core.dll"
 
+open System
+open System.Linq
 open Looper.Core
+open Microsoft.CodeAnalysis
+open Microsoft.CodeAnalysis.CSharp
+open Microsoft.CodeAnalysis.CSharp.Syntax
 
+let test = """
+using System;
+using System.Linq;
+void Foo () {
+    var xs = Enumerable.Range(1, 10);
+    var ys = xs.Select(x => x + 1);
+}
+"""
+
+let syntax = CSharpSyntaxTree.ParseText(test)
+let mscorlib = MetadataReference.CreateFromFile(typeof<obj>.Assembly.Location)
+let systemCore = MetadataReference.CreateFromFile(typeof<Enumerable>.Assembly.Location)
+let compilation = CSharpCompilation.Create("TestCompilation").AddReferences(mscorlib, systemCore).AddSyntaxTrees(syntax)
+let model = compilation.GetSemanticModel(syntax, false)
+let root = syntax.GetRoot()
+
+root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+|> Seq.map(fun n -> model.GetSymbolInfo(n.Expression))
 
 

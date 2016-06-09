@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <None Include="packages.config" />
     <None Include="Scripts\Tests.csx" />
   </ItemGroup>
 

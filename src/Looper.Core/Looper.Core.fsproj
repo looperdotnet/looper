@@ -54,7 +54,7 @@
     <Compile Include="Analysis\OptimizationCandidateAnalyzer.fs" />
     <Compile Include="Compilation\QueryTransformer.fs" />
     <Compile Include="Compilation\CodeTransformer.fs" />
-    <None Include="Script.fsx" />
+    <None Include="test.fsx" />
     <None Include="paket.references" />
   </ItemGroup>
   <PropertyGroup>
