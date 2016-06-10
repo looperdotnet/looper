@@ -32,25 +32,31 @@
             | :? BlockSyntax as node -> Some(node.Statements)
             | _ -> None
 
-
         let (|LocalDeclarationStatement|_|) (node : SyntaxNode) =
             match node with
             | :? LocalDeclarationStatementSyntax as node -> Some(node.Modifiers, node.Declaration)
             | _ -> None
 
+        let (|ExpressionStatement|_|) (node : SyntaxNode) =
+            match node with
+            | :? ExpressionStatementSyntax as node -> Some(node.Expression)
+            | _ -> None
+
+        let (|Assignment|_|) (node : SyntaxNode) =
+            match node with
+            | :? AssignmentExpressionSyntax as node -> Some(node.Left, node.Right)
+            | _ -> None
 
         let (|VariableDeclaration|_|) (node : SyntaxNode) =
             match node with
             | :? VariableDeclarationSyntax as node -> Some(node.Type, node.Variables |>  Seq.toList)
             | _ -> None
 
-
         let (|VariableDeclarator|_|) (node : SyntaxNode) =
             match node with
             | :? VariableDeclaratorSyntax as node -> Some(node.Identifier, node.ArgumentList, node.Initializer)
             | _ -> None
     
-
         let (|EqualsValueClause|_|) (node : SyntaxNode) =
             match node with
             | :? EqualsValueClauseSyntax as node -> Some(node.Value)

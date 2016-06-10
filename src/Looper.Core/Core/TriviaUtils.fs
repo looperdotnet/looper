@@ -24,15 +24,15 @@ let private elseDirective =
 let private endDirective =
     SyntaxFactory.Trivia(SyntaxFactory.EndIfDirectiveTrivia(true))
 
-type SyntaxNode with
-    
-    member node.IsMarkedWithOptimizationTrivia =
+[<AutoOpen>] 
+module TriviaPatterns =
+    let (|MarkedForOptimization|_|) (node : SyntaxNode) =
         let rec isMarked (trivia : SyntaxTrivia list) =
             match trivia with
-            | [] -> false
+            | [] -> None
             | trivia :: tail ->
                 if trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) && trivia.ToFullString() = markerCommentText then
-                    true
+                    Some trivia
                 else if trivia.IsDirective && trivia.IsKind(SyntaxKind.IfDirectiveTrivia) then
                     match trivia.GetStructure() with
                     | :? ConditionalDirectiveTriviaSyntax as cond ->
@@ -42,7 +42,7 @@ type SyntaxNode with
                             |> Seq.collect(fun n -> n.DescendantNodes())
                             |> Seq.choose(function :? IdentifierNameSyntax as s -> Some s | _ -> None)
                             |> Seq.exists(fun n -> n.Identifier.ToFullString().StartsWith ifDefIdentifier)
-                        if exists then true else isMarked tail
+                        if exists then Some trivia else isMarked tail
                     | _ -> isMarked tail
                 else 
                     isMarked tail
@@ -50,6 +50,13 @@ type SyntaxNode with
         node.GetLeadingTrivia()
         |> Seq.toList
         |> isMarked
+
+type SyntaxNode with
+    
+    member node.IsMarkedWithOptimizationTrivia = 
+        match node with 
+        | MarkedForOptimization _ -> true 
+        | _ -> false
 
     member node.MakeLeadingIfDirective () =
         if node.GetLeadingTrivia() |> Seq.forall(fun t -> t.IsKind(SyntaxKind.SingleLineCommentTrivia)) then

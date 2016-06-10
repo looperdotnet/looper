@@ -4,31 +4,53 @@ open Microsoft.CodeAnalysis
 open Microsoft.CodeAnalysis.CSharp
 open Microsoft.CodeAnalysis.CSharp.Syntax
 open System.Collections.Generic
+open Looper.Core.SyntaxPatterns
+open Looper.Core.QueryTransformer
+open System.Linq
 
-type OptimizationCandidateAnalyzer private (model: SemanticModel, candidates: List<OptimizationCandidate>, invalidNodes: List<InvalidNode>, optimizedNodes: List<OptimizedNode>) =
-    inherit CSharpSyntaxWalker()
+module Analyzer =
+    
+    type AnalysisResult = {
+        OptimizationCandidates: seq<OptimizationCandidate>
+        InvalidMarkedNodes: seq<InvalidNode>
+        OptimizedNodes: seq<OptimizedNode>
+    }
 
-    member __.Candidates with get () = candidates :> seq<_>
-    member __.FalselyMarkedNodes with get () = invalidNodes :> seq<_>
-    member __.OptimizedNode with get () = optimizedNodes :> seq<_> 
+    type private Walker (model: SemanticModel) =
+        inherit CSharpSyntaxWalker ()
 
-    new(model: SemanticModel) = OptimizationCandidateAnalyzer(model, new List<_>(), new List<_>(), new List<_>())
+        let candidates = new List<OptimizationCandidate>()
+        let invalidNodes = new List<InvalidNode>()
+        let optimizedNodes = new List<OptimizedNode>() // TODO
+        let invalidTrivia = new HashSet<SyntaxTrivia>()
 
-    member __.Run () = __.Visit(model.SyntaxTree.GetRoot())
+        member __.Results = { OptimizationCandidates = candidates; InvalidMarkedNodes = invalidNodes; OptimizedNodes = optimizedNodes}
 
-    override __.VisitInvocationExpression(node) =
-        let stmt = node.GetParentStatement()
-        let isMarked = stmt |> Option.exists(fun s -> s.IsMarkedWithOptimizationTrivia)
+        override __.Visit(node) =
+            let triviaMark = 
+                match node with
+                | MarkedForOptimization trivia -> Some trivia
+                | _ -> None
+            
+            match node with 
+            | StmtQueryExpr _ 
+            | QueryExpr _ ->
+                if triviaMark.IsNone then
+                    let inv = node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First()
+                    candidates.Add(OptimizationCandidate.FromInvocation(inv)) // TODO
+            | StmtNoConsumerQuery _ 
+            | NoConsumerQuery _ when triviaMark.IsSome ->
+                let inv = node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First()
+                invalidNodes.Add(NoConsumer(inv))
+            | _ ->
+                match triviaMark with
+                | Some t ->
+                    if invalidTrivia.Add(t) then
+                        invalidNodes.Add(InvalidExpression(node, t))
+                | _ -> ()
+                base.Visit(node)
 
-        match node.Expression with
-        | :? MemberAccessExpressionSyntax as memberExpr ->
-            let methodSym = model.GetSymbolInfo(memberExpr).Symbol :?> IMethodSymbol // TODO
-            if methodSym.IsOptimizableConsumerMethod && model.GetTypeInfo(memberExpr.Expression).Type.IsOptimizableSourceType then
-                if not isMarked then
-                    candidates.Add(OptimizationCandidate.FromInvocation(node))
-                else
-                    ()
-            elif isMarked then
-                let n = if methodSym.IsLinqMethod then NoConsumer(node) else InvalidExpression(node)
-                invalidNodes.Add(n)
-        | _ -> base.VisitInvocationExpression(node)
+    let analyze (model : SemanticModel) =
+        let walker = Walker(model)
+        walker.Visit(model.SyntaxTree.GetRoot())
+        walker.Results

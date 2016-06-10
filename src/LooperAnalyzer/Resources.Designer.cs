@@ -62,7 +62,7 @@ namespace LooperAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Marked expression is not a valid Linq expression..
+        ///   Looks up a localized string similar to Marked element is not a valid Linq expression..
         /// </summary>
         internal static string InvalidExpressionAnalyzerDescription {
             get {
@@ -71,7 +71,7 @@ namespace LooperAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Marked expression is not a valid Linq expression..
+        ///   Looks up a localized string similar to Marked element is not a valid Linq expression..
         /// </summary>
         internal static string InvalidExpressionAnalyzerMessageFormat {
             get {
@@ -80,7 +80,7 @@ namespace LooperAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Marked expression is not a valid Linq expression..
+        ///   Looks up a localized string similar to Marked element is not a valid Linq expression..
         /// </summary>
         internal static string InvalidExpressionAnalyzerTitle {
             get {
@@ -125,7 +125,7 @@ namespace LooperAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Linq expression is marked but cannot be optimized..
+        ///   Looks up a localized string similar to Linq expression is marked but no suitable consumer found..
         /// </summary>
         internal static string NoConsumerAnalyzerMessageFormat {
             get {

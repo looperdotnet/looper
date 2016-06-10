@@ -9,12 +9,14 @@
         // Intermediate 
         | Select of SimpleLambdaExpressionSyntax * QueryExpr
         | SelectMany of (ParameterSyntax * QueryExpr) * QueryExpr
-        | Filter of SimpleLambdaExpressionSyntax * QueryExpr
+        | Where of SimpleLambdaExpressionSyntax * QueryExpr
         // Consumer
         | ToArray of QueryExpr
         | ToList of QueryExpr
         | Sum of QueryExpr
         | Count of QueryExpr
+        | Any of QueryExpr
+        | First of QueryExpr
 
     and StmtQueryExpr = 
         | Assign of IdentifierNameSyntax * QueryExpr

@@ -61,20 +61,19 @@ namespace LooperAnalyzer
             
             SymbolUtils.initializeFromCompilation(model.Compilation);
 
-            var analyzer = new OptimizationCandidateAnalyzer(model);
-            analyzer.Run();
-
-            foreach (var node in analyzer.Candidates) {
+            var analyzer = Analyzer.analyze(model);
+            
+            foreach (var node in analyzer.OptimizationCandidates) {
                 var rule = node.IsInvariantOptimization ? InvariantOptimizationRule : UnsafeOptimizationRule;
                 var diagnostic = Diagnostic.Create(rule, node.Invocation.GetLocation(), node.ConsumerMethodName);
                 context.ReportDiagnostic(diagnostic);
             }
 
-            foreach (var node in analyzer.FalselyMarkedNodes) {
+            foreach (var node in analyzer.InvalidMarkedNodes) {
                 Diagnostic diagnostic;
                 if (node.IsInvalidExpression) {
                     var n = node as InvalidNode.InvalidExpression;
-                    diagnostic = Diagnostic.Create(InvalidExpressionRule, n.stmt.GetLocation());
+                    diagnostic = Diagnostic.Create(InvalidExpressionRule, n.trivia.GetLocation());
                 } else {
                     var n = node as InvalidNode.NoConsumer;
                     diagnostic = Diagnostic.Create(NoConsumerRule, n.stmt.GetLocation());

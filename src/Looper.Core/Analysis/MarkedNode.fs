@@ -4,7 +4,7 @@ open Microsoft.CodeAnalysis.CSharp.Syntax
 open Microsoft.CodeAnalysis
 
 type InvalidNode = 
-    | InvalidExpression of stmt: SyntaxNode 
+    | InvalidExpression of node: SyntaxNode * trivia: SyntaxTrivia
     | NoConsumer of stmt: InvocationExpressionSyntax
 
 type OptimizedNode =
