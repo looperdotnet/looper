@@ -12,7 +12,7 @@ let initializeFromCompilation(compilation : Compilation) =
     if isNull whitelist || isNull allLinqMethods || isNull genericIEnumerableType then
         let whitelistNames = 
             set [
-                "Enumerable.First"
+                "First"
                 "FirstOrDefault"
                 "Single"
                 "SingleOrDefault"

@@ -26,7 +26,6 @@ type OptimizationCandidateAnalyzer private (model: SemanticModel, candidates: Li
             if methodSym.IsOptimizableConsumerMethod && model.GetTypeInfo(memberExpr.Expression).Type.IsOptimizableSourceType then
                 if not isMarked then
                     candidates.Add(OptimizationCandidate.FromInvocation(node))
-                    ()
                 else
                     ()
             elif isMarked then
