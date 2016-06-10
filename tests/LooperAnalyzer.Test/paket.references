@@ -1,9 +1,4 @@
 Microsoft.CodeAnalysis
-Microsoft.CodeAnalysis.CSharp
-Microsoft.CodeAnalysis.CSharp.Workspaces
-Microsoft.CodeAnalysis.Workspaces.Common
-System.Collections.Immutable
 NuGet.CommandLine
-System.Reflection.Metadata
 Xunit
 Xunit.Runner.VisualStudio

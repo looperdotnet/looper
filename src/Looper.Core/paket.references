@@ -1,7 +1,2 @@
-﻿Microsoft.CodeAnalysis
-Microsoft.CodeAnalysis.CSharp
-Microsoft.CodeAnalysis.CSharp.Workspaces
-Microsoft.CodeAnalysis.Workspaces.Common
-System.Collections.Immutable
+Microsoft.CodeAnalysis
 NuGet.CommandLine
-System.Reflection.Metadata
