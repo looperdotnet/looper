@@ -14,12 +14,10 @@
 
         let rec intermediateMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
             match node with 
-            | InvocationExpression (MemberAccessExpression (IdentifierName "Select", expr), [SimpleLambdaExpression (param, body)]) ->
-                let lambda = SyntaxFactory.SimpleLambdaExpression(param, body)
-                intermediateMatch expr model |> Option.map (fun expr -> Select (lambda, expr))
-            | InvocationExpression (MemberAccessExpression (IdentifierName "Where", expr), [SimpleLambdaExpression (param, body)]) ->
-                let lambda = SyntaxFactory.SimpleLambdaExpression(param, body)
-                intermediateMatch expr model |> Option.map (fun expr -> Select (lambda, expr))
+            | InvocationExpression (MemberAccessExpression (IdentifierName "Select", expr), [SimpleLambdaExpression (param, body) as lambda]) ->
+                intermediateMatch expr model |> Option.map (fun expr -> Select (lambda :?> SimpleLambdaExpressionSyntax, expr))
+            | InvocationExpression (MemberAccessExpression (IdentifierName "Where", expr), [SimpleLambdaExpression (param, body) as lambda]) ->
+                intermediateMatch expr model |> Option.map (fun expr -> Where (lambda :?> SimpleLambdaExpressionSyntax, expr))
             | _ -> producerMatch node model
 
         let consumerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
