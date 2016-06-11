@@ -7,55 +7,56 @@
 
     module QueryTransformer = 
 
-        let producerMatch (node : SyntaxNode) : QueryExpr option =
+        let producerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option =
             match node with 
             | IdentifierName _ -> Some (SourceIdentifierName (node :?> IdentifierNameSyntax))
             | _ -> None
 
-        let rec intermediateMatch (node : SyntaxNode) : QueryExpr option = 
+        let rec intermediateMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
             match node with 
             | InvocationExpression (MemberAccessExpression (IdentifierName "Select", expr), [SimpleLambdaExpression (param, body)]) ->
                 let lambda = SyntaxFactory.SimpleLambdaExpression(param, body)
-                intermediateMatch expr |> Option.map (fun expr -> Select (lambda, expr))
+                intermediateMatch expr model |> Option.map (fun expr -> Select (lambda, expr))
             | InvocationExpression (MemberAccessExpression (IdentifierName "Where", expr), [SimpleLambdaExpression (param, body)]) ->
                 let lambda = SyntaxFactory.SimpleLambdaExpression(param, body)
-                intermediateMatch expr |> Option.map (fun expr -> Select (lambda, expr))
-            | _ -> producerMatch node 
+                intermediateMatch expr model |> Option.map (fun expr -> Select (lambda, expr))
+            | _ -> producerMatch node model
 
-        let consumerMatch (node : SyntaxNode) : QueryExpr option = 
+        let consumerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
             match node with 
             | InvocationExpression (MemberAccessExpression (IdentifierName "Sum", expr), args) ->
-                intermediateMatch expr |> Option.map Sum 
+                intermediateMatch expr model |> Option.map Sum 
             | InvocationExpression (MemberAccessExpression (IdentifierName "First", expr), args) ->
-                intermediateMatch expr |> Option.map First 
+                intermediateMatch expr model |> Option.map First 
             | InvocationExpression (MemberAccessExpression (IdentifierName "Any", expr), args) ->
-                intermediateMatch expr |> Option.map Any
+                intermediateMatch expr model |> Option.map Any
             | _ -> None
 
-        let toQueryExpr (node : SyntaxNode) : QueryExpr option =
-            consumerMatch node
+        let toQueryExpr (node : SyntaxNode) (model : SemanticModel) : QueryExpr option =
+            consumerMatch node model
 
-        let (|QueryExpr|_|) (node : SyntaxNode) =
-            toQueryExpr node
+        let (|QueryExpr|_|) (model : SemanticModel) (node : SyntaxNode) =
+            toQueryExpr node model
 
-        let toStmtQueryExpr (node : SyntaxNode) : StmtQueryExpr option =
+        let toStmtQueryExpr (node : SyntaxNode) (model : SemanticModel) : StmtQueryExpr option =
             match node with
-            | LocalDeclarationStatement (modifiers, VariableDeclaration (t, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr expr))])) -> 
+            | LocalDeclarationStatement (modifiers, VariableDeclaration (t, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr model expr as exprSyntax))])) -> 
                 let identifierNameSyntax = SyntaxFactory.IdentifierName(identifier)
-                Some (Assign (identifierNameSyntax, expr))
+                let symbol = model.GetSymbolInfo(exprSyntax)
+                Some (Assign (t, null, identifierNameSyntax, expr))
             | _ -> None
 
-        let (|StmtQueryExpr|_|) (node : SyntaxNode) =
-            toStmtQueryExpr node
+        let (|StmtQueryExpr|_|) (model : SemanticModel) (node : SyntaxNode) =
+            toStmtQueryExpr node model
 
-        let (|NoConsumerQuery|_|) (node : SyntaxNode) =
-            match intermediateMatch node with
-            | Some _ as m when producerMatch node = None -> m
+        let (|NoConsumerQuery|_|) (model : SemanticModel) (node : SyntaxNode) =
+            match intermediateMatch node model with
+            | Some _ as m when producerMatch node model = None -> m
             | _ -> None
 
-        let (|StmtNoConsumerQuery|_|) (node : SyntaxNode) =
+        let (|StmtNoConsumerQuery|_|) (model : SemanticModel) (node : SyntaxNode)  =
             match node with
-            | LocalDeclarationStatement (_, VariableDeclaration (_, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery expr))])) -> 
+            | LocalDeclarationStatement (_, VariableDeclaration (t, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery model expr))])) -> 
                 let identifierNameSyntax = SyntaxFactory.IdentifierName(identifier)
-                Some (Assign (identifierNameSyntax, expr))
+                Some (Assign (t, null, identifierNameSyntax, expr))
             | _ -> None

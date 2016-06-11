@@ -19,4 +19,4 @@
         | First of QueryExpr
 
     and StmtQueryExpr = 
-        | Assign of IdentifierNameSyntax * QueryExpr
+        | Assign of TypeSyntax * obj * IdentifierNameSyntax * QueryExpr

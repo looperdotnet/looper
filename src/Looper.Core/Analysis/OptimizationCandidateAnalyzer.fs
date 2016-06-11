@@ -33,13 +33,13 @@ module Analyzer =
                 | _ -> None
             
             match node with 
-            | StmtQueryExpr _ 
-            | QueryExpr _ ->
+            | StmtQueryExpr model _ 
+            | QueryExpr model _ ->
                 if triviaMark.IsNone then
                     let inv = node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First()
                     candidates.Add(OptimizationCandidate.FromInvocation(inv)) // TODO
-            | StmtNoConsumerQuery _ 
-            | NoConsumerQuery _ when triviaMark.IsSome ->
+            | StmtNoConsumerQuery model _ 
+            | NoConsumerQuery model _ when triviaMark.IsSome ->
                 let inv = node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First()
                 invalidNodes.Add(NoConsumer(inv))
             | _ ->

@@ -43,14 +43,18 @@ namespace LooperAnalyzer.Test
                     .AddReferences(mscorlib, systemCore)
                     .AddSyntaxTrees(tree);
 
-            
+            var test = default(int);
             var model = compilation.GetSemanticModel(tree);
             var syntaxTree = model.SyntaxTree;
             var root = syntaxTree.GetRoot();
             var tests = root.DescendantNodes().OfType<BlockSyntax>().ToArray();
             foreach (var stmt in tests[0].Statements)
             {
-                QueryTransformer.toStmtQueryExpr(stmt);
+                var queryExprOption = QueryTransformer.toStmtQueryExpr(stmt, model);
+                if (queryExprOption != null)
+                {
+                    var newStmt = Compiler.compile(queryExprOption.Value, model);
+                }
             }
             //var queryExpr = QueryTransformer.toQueryExpr(tests[0]);
         }
