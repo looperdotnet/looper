@@ -24,7 +24,7 @@
 
         let consumerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
             match node with 
-            | InvocationExpression (MemberAccessExpression (IdentifierName "Sum", expr), args) ->
+            | InvocationExpression (MemberAccessExpression ((IdentifierName "Sum" as ident), expr), args) ->
                 intermediateMatch expr model |> Option.map Sum 
             | InvocationExpression (MemberAccessExpression (IdentifierName "First", expr), args) ->
                 intermediateMatch expr model |> Option.map First 
@@ -40,10 +40,9 @@
 
         let toStmtQueryExpr (node : SyntaxNode) (model : SemanticModel) : StmtQueryExpr option =
             match node with
-            | LocalDeclarationStatement (modifiers, VariableDeclaration (t, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr model expr as exprSyntax))])) -> 
-                let identifierNameSyntax = SyntaxFactory.IdentifierName(identifier)
-                let symbol = model.GetSymbolInfo(exprSyntax)
-                Some (Assign (t, null, identifierNameSyntax, expr))
+            | LocalDeclarationStatement (modifiers, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr model expr))])) -> 
+                let typeSymbol = model.GetSymbolInfo(typeSyntax).Symbol :?> INamedTypeSymbol
+                Some (Assign (typeSyntax, typeSymbol, identifier, expr))
             | _ -> None
 
         let (|StmtQueryExpr|_|) (model : SemanticModel) (node : SyntaxNode) =
@@ -56,7 +55,7 @@
 
         let (|StmtNoConsumerQuery|_|) (model : SemanticModel) (node : SyntaxNode)  =
             match node with
-            | LocalDeclarationStatement (_, VariableDeclaration (t, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery model expr))])) -> 
-                let identifierNameSyntax = SyntaxFactory.IdentifierName(identifier)
-                Some (Assign (t, null, identifierNameSyntax, expr))
+            | LocalDeclarationStatement (_, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery model expr))])) -> 
+                let typeSymbol = model.GetSymbolInfo(typeSyntax).Symbol :?> INamedTypeSymbol
+                Some (Assign (typeSyntax, typeSymbol, identifier, expr))
             | _ -> None

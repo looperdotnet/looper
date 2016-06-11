@@ -12,8 +12,8 @@
 
         let compile (query : StmtQueryExpr) (model : SemanticModel) : SyntaxNode =
             match query with
-            | Assign (t, _, identifier, queryExpr) -> 
-                let symbolInfo = model.GetSymbolInfo(identifier)
+            | Assign (typeSyntax, typeSymbol, identifier, queryExpr) -> 
+                //let symbolInfo = model.GetSymbolInfo(identifier)
                 //SyntaxFactory.VariableDeclaration()
                 failwith "oups"
             | _ -> failwithf "Invalid query %A" query
