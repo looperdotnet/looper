@@ -24,10 +24,10 @@
 
     let rec intermediateMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
         match node with 
-        | LinqInvocation model (expr, "Select", [SimpleLambdaExpression _ as lambda]) ->
-            intermediateMatch expr model |> Option.map (fun expr -> Select (lambda :?> SimpleLambdaExpressionSyntax, expr))
-        | LinqInvocation model (expr, "Where", [SimpleLambdaExpression _ as lambda]) ->
-            intermediateMatch expr model |> Option.map (fun expr -> Where (lambda :?> SimpleLambdaExpressionSyntax, expr))
+        | LinqInvocation model (expr, "Select", [SimpleLambdaExpression (param, body)]) ->
+            intermediateMatch expr model |> Option.map (fun expr -> Select (Lambda (param, body), expr))
+        | LinqInvocation model (expr, "Where", [SimpleLambdaExpression (param, body)]) ->
+            intermediateMatch expr model |> Option.map (fun expr -> Where (Lambda (param, body), expr))
         | _ -> producerMatch node model
 
     let consumerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 

@@ -13,7 +13,14 @@
                 .WithArgumentList(SyntaxFactory.ArgumentList())) :> SyntaxNode
 
     let rec compileQuery (query : QueryExpr) (model : SemanticModel) (k : SyntaxNode -> SyntaxNode) : SyntaxNode =
-        throwNotImplemented
+        match query with
+        | SourceIdentifierName (typeSymbol, identifier) ->
+            throwNotImplemented
+        | Select (Lambda (param, body), query) ->
+             compileQuery query model k
+        | Sum query -> 
+            compileQuery query model k
+        | _ -> throwNotImplemented
 
     let compile (query : StmtQueryExpr) (model : SemanticModel) : SyntaxNode =
         match query with
