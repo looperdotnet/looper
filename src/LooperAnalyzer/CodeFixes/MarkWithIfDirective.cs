@@ -48,7 +48,7 @@ namespace LooperAnalyzer
             // Find a way to pass the fix from the analyzer to code fox provider
             var semanticModel = await document.GetSemanticModelAsync(c);
 
-            var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
+            var candidate = OptimizationCandidate.FromInvocation(semanticModel, invocationExpr);
             var newBlock = candidate.NeedsRefactoring 
                 ? CodeTransformer.refactorAndMarkWithIfDirective(candidate)
                 : CodeTransformer.markWithIfDirective(candidate);

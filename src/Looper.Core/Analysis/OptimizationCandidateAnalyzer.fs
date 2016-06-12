@@ -35,7 +35,7 @@
             | QueryExpr model _ ->
                 if triviaMark.IsNone then
                     let inv = node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First()
-                    candidates.Add(OptimizationCandidate.FromInvocation(inv)) // TODO
+                    candidates.Add(OptimizationCandidate.FromInvocation(model, inv)) // TODO
             | StmtNoConsumerQuery model _ 
             | NoConsumerQuery model _ when triviaMark.IsSome ->
                 let inv = node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First()

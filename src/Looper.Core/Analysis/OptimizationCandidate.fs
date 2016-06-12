@@ -1,5 +1,6 @@
 ﻿namespace Looper.Core
 
+open Microsoft.CodeAnalysis
 open Microsoft.CodeAnalysis.CSharp.Syntax
 
 type OptimizationCandidate = 
@@ -9,9 +10,10 @@ type OptimizationCandidate =
       ContainingBlock                : BlockSyntax option
       IsInvariantOptimization        : bool
       NeedsRefactoring               : bool
-      IsMarkedWithOptimizationTrivia : bool }
+      IsMarkedWithOptimizationTrivia : bool
+      SemanticModel                  : SemanticModel }
 
-    static member FromInvocation(node : InvocationExpressionSyntax) = 
+    static member FromInvocation(model : SemanticModel, node : InvocationExpressionSyntax) = 
         let memberExpr = 
             match node.Expression with
             | :? MemberAccessExpressionSyntax as m -> m
@@ -39,4 +41,5 @@ type OptimizationCandidate =
           ContainingBlock = block
           NeedsRefactoring = needsRefactoring
           IsMarkedWithOptimizationTrivia = isMarked
+          SemanticModel = model
         }

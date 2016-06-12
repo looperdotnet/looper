@@ -53,8 +53,8 @@
     <Compile Include="Analysis\OptimizationCandidate.fs" />
     <Compile Include="Analysis\QueryTransformer.fs" />
     <Compile Include="Analysis\OptimizationCandidateAnalyzer.fs" />
-    <Compile Include="Compilation\CodeTransformer.fs" />
     <Compile Include="Compilation\Compiler.fs" />
+    <Compile Include="Compilation\CodeTransformer.fs" />
     <None Include="test.fsx" />
     <None Include="paket.references" />
   </ItemGroup>

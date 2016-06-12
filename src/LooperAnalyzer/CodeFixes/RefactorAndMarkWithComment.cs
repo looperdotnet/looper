@@ -47,7 +47,7 @@ namespace LooperAnalyzer
         {
             var semanticModel = await document.GetSemanticModelAsync(c);
 
-            var candidate = OptimizationCandidate.FromInvocation(invocationExpr);
+            var candidate = OptimizationCandidate.FromInvocation(semanticModel, invocationExpr);
             var newBlock = CodeTransformer.refactorAndMarkWithComment(candidate);
 
             // Replace the old local declaration with the new local declaration.
