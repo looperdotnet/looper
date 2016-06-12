@@ -16,7 +16,9 @@
 
     let producerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option =
         match node with 
-        | IdentifierName _ -> Some (SourceIdentifierName (node :?> IdentifierNameSyntax))
+        | IdentifierName _ -> 
+            let symbol = model.GetSymbolInfo(node).Symbol :?> ILocalSymbol
+            Some (SourceIdentifierName (symbol.Type, node :?> IdentifierNameSyntax))
         | :? ExpressionSyntax as expr -> Some(SourceExpression expr)
         | _ -> None
 
@@ -62,6 +64,6 @@
     let (|StmtNoConsumerQuery|_|) (model : SemanticModel) (node : SyntaxNode)  =
         match node with
         | LocalDeclarationStatement (_, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery model expr))])) -> 
-            let typeSymbol = model.GetSymbolInfo(typeSyntax).Symbol :?> INamedTypeSymbol
+            let typeSymbol = model.GetSymbolInfo(typeSyntax).Symbol :?> ITypeSymbol
             Some (Assign (typeSyntax, typeSymbol, identifier, expr))
         | _ -> None

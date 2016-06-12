@@ -5,7 +5,7 @@
 
     type QueryExpr =
         // Producer
-        | SourceIdentifierName of IdentifierNameSyntax
+        | SourceIdentifierName of ITypeSymbol * IdentifierNameSyntax
         | SourceExpression of ExpressionSyntax
         // Intermediate 
         | Select of SimpleLambdaExpressionSyntax * QueryExpr
@@ -20,4 +20,4 @@
         | First of QueryExpr
 
     and StmtQueryExpr = 
-        | Assign of TypeSyntax * INamedTypeSymbol * SyntaxToken * QueryExpr
+        | Assign of TypeSyntax * ITypeSymbol * SyntaxToken * QueryExpr

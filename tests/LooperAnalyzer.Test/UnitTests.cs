@@ -37,13 +37,13 @@ namespace LooperAnalyzer.Test
                 }");
 
             var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-                var systemCore = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
-                var compilation = CSharpCompilation
-                    .Create("HelloWorld")
-                    .AddReferences(mscorlib, systemCore)
-                    .AddSyntaxTrees(tree);
+            var systemCore = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
+            var compilation = CSharpCompilation
+                .Create("HelloWorld")
+                .AddReferences(mscorlib, systemCore)
+                .AddSyntaxTrees(tree);
 
-            var test = default(int);
+            SymbolUtils.initializeFromCompilation(compilation);
             var model = compilation.GetSemanticModel(tree);
             var syntaxTree = model.SyntaxTree;
             var root = syntaxTree.GetRoot();
