@@ -1,15 +1,13 @@
-﻿namespace Looper.Core
+﻿module Looper.Core.Analyzer
 
-open Microsoft.CodeAnalysis
-open Microsoft.CodeAnalysis.CSharp
-open Microsoft.CodeAnalysis.CSharp.Syntax
-open System.Collections.Generic
-open Looper.Core.SyntaxPatterns
-open Looper.Core.QueryTransformer
-open System.Linq
+    open Microsoft.CodeAnalysis
+    open Microsoft.CodeAnalysis.CSharp
+    open Microsoft.CodeAnalysis.CSharp.Syntax
+    open System.Collections.Generic
+    open Looper.Core.SyntaxPatterns
+    open Looper.Core.QueryTransformer
+    open System.Linq
 
-module Analyzer =
-    
     type AnalysisResult = {
         OptimizationCandidates: seq<OptimizationCandidate>
         InvalidMarkedNodes: seq<InvalidNode>

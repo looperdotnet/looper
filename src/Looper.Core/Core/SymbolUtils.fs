@@ -1,59 +1,34 @@
-﻿[<AutoOpen>]
-module Looper.Core.SymbolUtils
+﻿module Looper.Core.SymbolUtils
 
 open Microsoft.CodeAnalysis
 open System.Collections.Generic
 
-let mutable private whitelist = Unchecked.defaultof<_>
 let mutable private allLinqMethods = Unchecked.defaultof<_>
 let mutable private genericIEnumerableType = Unchecked.defaultof<_>
 
-let initializeFromCompilation(compilation : Compilation) = 
-    if isNull whitelist || isNull allLinqMethods || isNull genericIEnumerableType then
-        let whitelistNames = 
-            set [
-                "First"
-                "FirstOrDefault"
-                "Single"
-                "SingleOrDefault"
-                "Any"
-                "Average"
-                "Count"
-                "ElementAt"
-                "ElementAtOrDefault"
-                "Last"
-                "LastOrDefault"
-                "Max"
-                "Min"
-                "Single"
-                "SingleOrDefault"
-                "Sum"
-                "ToArray"
-                "ToList"
-            ]
-
-        let methods = compilation.GetTypeByMetadataName("System.Linq.Enumerable").GetMembers() |> Seq.where(fun m -> m :? IMethodSymbol)
-        let filtered = methods |> Seq.filter(fun m -> whitelistNames.Contains(m.Name))
-
+let initializeFromCompilation (compilation : Compilation) = 
+    // TODO : check if System.Linq is referenced in compilation
+    if isNull allLinqMethods || isNull genericIEnumerableType then 
+        let methods = 
+            compilation.GetTypeByMetadataName("System.Linq.Enumerable").GetMembers() 
+            |> Seq.where (fun m -> m :? IMethodSymbol)
         allLinqMethods <- new HashSet<ISymbol>(methods)
-        whitelist <- new HashSet<ISymbol>(filtered)
         genericIEnumerableType <- compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1")
 
-type IMethodSymbol with
-    member this.IsOptimizableConsumerMethod =
-        if this.IsExtensionMethod then whitelist.Contains this.ReducedFrom else whitelist.Contains this
+let (|LinqMethod|Other|) (symbol : ISymbol) = 
+    if isNull allLinqMethods then invalidOp "Not initialized from a compilation"
+    match symbol with
+    | :? IMethodSymbol as s when s.IsExtensionMethod && allLinqMethods.Contains s.ReducedFrom 
+                                 || allLinqMethods.Contains s -> LinqMethod s
+    | _ -> Other
 
-    member this.IsLinqMethod = 
-        if this.IsExtensionMethod then allLinqMethods.Contains this.ReducedFrom else allLinqMethods.Contains this
+let (|ArrayType|_|) (symbol : ISymbol) = 
+    match symbol with
+    | :? IArrayTypeSymbol as s -> Some s
+    | _ -> None
 
-
-type ITypeSymbol with
-    member this.IsArrayType = this :? IArrayTypeSymbol
-
-    member this.IsIEnumerableType = 
-        match this with
-        | :? INamedTypeSymbol as ita -> 
-            ita.OriginalDefinition = genericIEnumerableType || ita.OriginalDefinition.AllInterfaces.Contains(genericIEnumerableType)
-        | _ -> false
-
-    member this.IsOptimizableSourceType = this.IsArrayType || this.IsIEnumerableType
+let (|IEnumerableType|_|) (symbol : ISymbol) = 
+    match symbol with
+    | :? INamedTypeSymbol as s when s.OriginalDefinition = genericIEnumerableType 
+                                    || s.OriginalDefinition.AllInterfaces.Contains(genericIEnumerableType) -> Some s
+    | _ -> None

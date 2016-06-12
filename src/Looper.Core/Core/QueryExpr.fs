@@ -6,6 +6,7 @@
     type QueryExpr =
         // Producer
         | SourceIdentifierName of IdentifierNameSyntax
+        | SourceExpression of ExpressionSyntax
         // Intermediate 
         | Select of SimpleLambdaExpressionSyntax * QueryExpr
         | SelectMany of (ParameterSyntax * QueryExpr) * QueryExpr
