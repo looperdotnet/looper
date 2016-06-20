@@ -53,7 +53,7 @@ namespace LooperAnalyzer.Test
                 var queryExprOption = QueryTransformer.toStmtQueryExpr(stmt, model);
                 if (queryExprOption != null)
                 {
-                    var newStmt = Compiler.compile(queryExprOption.Value, model);
+                    var newStmt = Compiler.compile(queryExprOption.Value, model).NormalizeWhitespace().ToFullString();
                 }
             }
             //var queryExpr = QueryTransformer.toQueryExpr(tests[0]);

@@ -38,7 +38,10 @@
         | Select (Lambda (param, body), query) ->
              compileQuery query model k
         | Sum query -> 
-            compileQuery query model k
+            let varDeclStmt = parseStmt "var __sum__ = 0;"
+            let assignStmt value = parseStmt (sprintf "__sum__ += %s;" value)
+            let loopStmt = compileQuery query model (fun expr -> block [assignStmt (toStr expr); k (parseExpr "__sum__")] :> _);
+            block [varDeclStmt; loopStmt] :> _
         | _ -> throwNotImplemented
 
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =
