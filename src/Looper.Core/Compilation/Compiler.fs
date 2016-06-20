@@ -64,7 +64,7 @@
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =
         match query with
         | Assign (typeSyntax, typeSymbol, identifier, queryExpr) -> 
-            let varDeclStmt = parseStmtf "var %s = default(%s);" identifier.ValueText typeSymbol.Name
+            let varDeclStmt = parseStmtf "var %s = default(%s);" identifier.ValueText (typeSymbol.ToDisplayString())
             let assignStmt value = parseStmtf "%s = %s;" identifier.ValueText value
             let loopStmt = compileQuery queryExpr model (fun expr -> assignStmt (toStr expr)) 
             block [varDeclStmt; loopStmt] :> _
