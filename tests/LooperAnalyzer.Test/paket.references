@@ -1,4 +1,5 @@
 Microsoft.CodeAnalysis
+Microsoft.CodeAnalysis.CSharp.Scripting
 NuGet.CommandLine
 Xunit
 Xunit.Runner.VisualStudio

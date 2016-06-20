@@ -1,8 +1,11 @@
+strategy: min
+
 source https://www.nuget.org/api/v2/
 
 nuget FAKE
 nuget NuGet.CommandLine
-nuget Microsoft.CodeAnalysis 1.1.0
+nuget Microsoft.CodeAnalysis 1.2.2
+nuget Microsoft.CodeAnalysis.CSharp.Scripting 1.2.2
 nuget NuGet.CommandLine 2.8.5 framework: portable45-net45+win8
 nuget FSharp.Core
 nuget Xunit
