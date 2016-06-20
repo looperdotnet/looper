@@ -17,8 +17,9 @@
     let producerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option =
         match node with 
         | IdentifierName _ -> 
-            let symbol = model.GetSymbolInfo(node).Symbol :?> ILocalSymbol
-            Some (SourceIdentifierName (symbol.Type, node :?> IdentifierNameSyntax))
+            match model.GetSymbolInfo(node).Symbol with
+            | :? ILocalSymbol as symbol -> Some (SourceIdentifierName (symbol.Type, node :?> IdentifierNameSyntax))
+            | _ -> None
         | :? ExpressionSyntax as expr -> Some(SourceExpression expr)
         | _ -> None
 
