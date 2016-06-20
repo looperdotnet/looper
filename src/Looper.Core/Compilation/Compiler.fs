@@ -5,6 +5,7 @@
     open Microsoft.CodeAnalysis.CSharp.Syntax
     open System
     open Looper.Core.SymbolUtils
+    open Looper.Core.SyntaxPatterns
 
     let toStr (node : SyntaxNode) = node.ToFullString()
 
@@ -35,12 +36,16 @@
             let forStmt = parseFor identifier
             let stmt = k (parseIndexer identifier)
             forStmt.WithStatement(block [stmt]) :> _
-        | Select (Lambda (param, body), query) ->
-             compileQuery query model k
+        | Select (Lambda (param, Expression body), query) ->
+            let identifier = param.Identifier.ValueText
+            let k expr = block [parseStmt (sprintf "var %s = %s;" identifier (toStr expr));
+                                k body] :> StatementSyntax
+            compileQuery query model k
         | Sum query -> 
             let varDeclStmt = parseStmt "var __sum__ = 0;"
             let assignStmt value = parseStmt (sprintf "__sum__ += %s;" value)
-            let loopStmt = compileQuery query model (fun expr -> block [assignStmt (toStr expr); k (parseExpr "__sum__")] :> _);
+            let k expr = block [assignStmt (toStr expr); k (parseExpr "__sum__")] :> StatementSyntax
+            let loopStmt = compileQuery query model k
             block [varDeclStmt; loopStmt] :> _
         | _ -> throwNotImplemented
 

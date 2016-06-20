@@ -37,6 +37,11 @@
             | :? LocalDeclarationStatementSyntax as node -> Some(node.Modifiers, node.Declaration)
             | _ -> None
 
+        let (|Expression|_|) (node : SyntaxNode) = 
+            match node with 
+            | :? ExpressionSyntax as node -> Some node
+            | _ -> None
+
         let (|ExpressionStatement|_|) (node : SyntaxNode) =
             match node with
             | :? ExpressionStatementSyntax as node -> Some(node.Expression)
