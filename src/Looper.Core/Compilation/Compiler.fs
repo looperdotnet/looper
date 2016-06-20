@@ -6,41 +6,46 @@
     open System
     open Looper.Core.SymbolUtils
 
+    let toStr (node : SyntaxNode) = node.ToFullString()
 
-    let private throwNotImplemented =
-        SyntaxFactory.ThrowStatement(
-            SyntaxFactory.ObjectCreationExpression(
-                SyntaxFactory.IdentifierName("System.NotImplementedException"))
-                .WithArgumentList(SyntaxFactory.ArgumentList())) :> SyntaxNode
+    let block (stmts : seq<StatementSyntax>) =
+        SyntaxFactory.Block(stmts)
 
-    let syntaxList<'Node when 'Node :> SyntaxNode> (elements : seq<'Node>) = 
-        SyntaxFactory.SeparatedList(elements)
-    let varStmt = 
-        SyntaxFactory.VariableDeclaration(
-            SyntaxFactory.IdentifierName("var")).
-            WithVariables(
-            SyntaxFactory.SingletonSeparatedList(
-                SyntaxFactory.VariableDeclarator(
-                    SyntaxFactory.Identifier("__i__")). // TODO: replace with fresh names
-                    WithInitializer(
-                    SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(0)))))).NormalizeWhitespace()
-    let forStmt = 
-        let lessThenExpr = SyntaxFactory.BinaryExpression(SyntaxKind.LessThanExpression, SyntaxFactory.IdentifierName("__i__"), SyntaxFactory.IdentifierName("__i__"))
-        SyntaxFactory.ForStatement(varStmt, syntaxList [||], lessThenExpr, syntaxList [||], SyntaxFactory.EmptyStatement())
+    let parseExpr (expr : string) : ExpressionSyntax = 
+        SyntaxFactory.ParseExpression(expr)
 
-    let rec compileQuery (query : QueryExpr) (model : SemanticModel) (k : SyntaxNode -> SyntaxNode) : SyntaxNode =
+    let parseStmt (stmt : string) : StatementSyntax = 
+        SyntaxFactory.ParseStatement(stmt)
+
+    let parseFor (identifier : string) : ForStatementSyntax = 
+        let stmt = parseStmt(sprintf "for (int __i__ = 0; __i__ < %s.Length; __i__++);" identifier)
+        stmt :?> ForStatementSyntax
+    
+    let parseIndexer (identifier : string) : ExpressionSyntax =
+        parseExpr(sprintf "%s[__i__]" identifier)
+
+    let  throwNotImplemented =
+        parseStmt "throw new System.NotImplementedException();" 
+
+    let rec compileQuery (query : QueryExpr) (model : SemanticModel) (k : ExpressionSyntax -> StatementSyntax) : StatementSyntax =
         
         match query with
         | SourceIdentifierName (ArrayType arrayTypeSymbol, identifier) ->    
-            varStmt :> _
+            let identifier = identifier.Identifier.ValueText
+            let forStmt = parseFor identifier
+            let stmt = k (parseIndexer identifier)
+            forStmt.WithStatement(block [stmt]) :> _
         | Select (Lambda (param, body), query) ->
              compileQuery query model k
         | Sum query -> 
             compileQuery query model k
         | _ -> throwNotImplemented
 
-    let compile (query : StmtQueryExpr) (model : SemanticModel) : SyntaxNode =
+    let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =
         match query with
         | Assign (typeSyntax, typeSymbol, identifier, queryExpr) -> 
-            compileQuery queryExpr model id 
+            let varDeclStmt = parseStmt (sprintf "var %s = default(%s);" identifier.ValueText typeSymbol.Name)
+            let assignStmt value = parseStmt (sprintf "%s = %s;" identifier.ValueText value)
+            let loopStmt = compileQuery queryExpr model (fun expr -> assignStmt (toStr expr)) 
+            block [varDeclStmt; loopStmt] :> _
         | _ -> throwNotImplemented
