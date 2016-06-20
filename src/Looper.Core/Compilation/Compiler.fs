@@ -25,6 +25,10 @@
     let parseFor (identifier : string) : ForStatementSyntax = 
         let stmt = parseStmtf "for (int __i__ = 0; __i__ < %s.Length; __i__++);" identifier
         stmt :?> ForStatementSyntax
+
+    let parseForeach (item : string) (source : string) : ForEachStatementSyntax =
+        let stmt = parseStmtf "foreach(var %s in %s);" item source
+        stmt :?> ForEachStatementSyntax
     
     let parseIndexer (identifier : string) : ExpressionSyntax =
         parseExprf "%s[__i__]" identifier
@@ -35,6 +39,10 @@
     let rec compileQuery (query : QueryExpr) (model : SemanticModel) (k : ExpressionSyntax -> StatementSyntax) : StatementSyntax =
         
         match query with
+        | SourceExpression expr ->
+            let foreachStmt = parseForeach "__item__" (toStr expr)
+            let stmt = k (parseExpr "__item__")
+            foreachStmt.WithStatement(block [stmt]) :> _
         | SourceIdentifierName (ArrayType arrayTypeSymbol, identifier) ->    
             let identifier = identifier.Identifier.ValueText
             let forStmt = parseFor identifier
