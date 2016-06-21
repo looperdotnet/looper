@@ -5,7 +5,6 @@ open Fake.Testing
 let binDir = "bin"
 let debugDir = binDir @@ "Debug"
 let releaseDir = binDir @@ "Release"
-let testArtifacts = binDir @@ "test"
 let solutionFile = "Looper.sln"
 
 Target "Clean" (fun _ -> CleanDirs [binDir])
@@ -24,14 +23,15 @@ Target "Tests" (fun _ ->
 
 Target "All" (fun _ ->
     !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
+    |> MSBuildDebug "" "Rebuild"
     |> ignore
 )
 
-Target "Test" (fun _ ->
-    //tracefn "%A" (debugDir @@ "*.Test.exe")
+Target "Xunit" (fun _ ->
     !! (debugDir @@ "*.Test.exe")
-    |> xUnit2 (fun p -> { p with HtmlOutputPath = Some(testArtifacts @@ "xunit.html") })
+    |> xUnit2 (fun p -> 
+        { p with HtmlOutputPath = Some(debugDir @@ "xunit.html")
+                 Parallel = ParallelMode.All })
 )
 
 Target "Default" DoNothing
@@ -42,7 +42,7 @@ Target "List" PrintTargets
 
 "Clean" ==> "All"
 
-"Clean" ==> "Tests" ==> "Test"
+"Clean" ==> "Tests" ==> "Xunit"
 
 RunTargetOrDefault "Default"
 

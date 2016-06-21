@@ -116,36 +116,20 @@ namespace LooperAnalyzer.Test
                 .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, model)?.Value })
                 .SingleOrDefault(e => e.LooperStmt != null);
 
-            var codegen = "";
+            output.WriteLine("original : {0}", root.ToFullString());
 
-            try {
-                Assert.NotNull(stmtQuery);
+            Assert.NotNull(stmtQuery);
 
-                codegen = tree.GetRoot()
-                    .ReplaceNode(stmtQuery.Node, Compiler.compile(stmtQuery.LooperStmt, model))
-                    .ToFullString();
+            var codegen = tree.GetRoot()
+                .ReplaceNode(stmtQuery.Node, Compiler.compile(stmtQuery.LooperStmt, model))
+                .ToFullString();
 
-                var expected = await script.ContinueWith<T>(template.ResultExpression).RunAsync();
-                var actual = await script.ContinueWith<T>(codegen).ContinueWith(template.ResultExpression).RunAsync();
+            output.WriteLine("codegen : {0}", codegen);
 
-                Assert.Equal(expected.ReturnValue, actual.ReturnValue);
-            }
-            catch(NotNullException) {
-                output.WriteLine("Could not find appropriate Linq expression : \r\n{0}", root.ToFullString());
-                throw;
-            }
-            catch(NotEqualException) {
-                output.WriteLine("Results not equal for original : \r\n{0}\r\ncodegen : \r\n{1}",
-                    root.ToFullString(),
-                    codegen);
-                throw;
-            }
-            catch(CompilationErrorException) {
-                output.WriteLine("Compilation failed original : \r\n{0}\r\ncodegen : \r\n{1}",
-                    root.ToFullString(),
-                    codegen);
-                throw;
-            }
+            var expected = await script.ContinueWith<T>(template.ResultExpression).RunAsync();
+            var actual = await script.ContinueWith<T>(codegen).ContinueWith(template.ResultExpression).RunAsync();
+
+            Assert.Equal(expected.ReturnValue, actual.ReturnValue);
         }
     }
 }
