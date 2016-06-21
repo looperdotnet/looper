@@ -5,6 +5,7 @@
     open Microsoft.CodeAnalysis.CSharp.Syntax
     open System
     open QueryTransformer
+    open Looper.Core.SyntaxPatterns
 
     let private refactorAndAnnotate(candidate: OptimizationCandidate) =
         match candidate.ContainingStatement, candidate.ContainingBlock with
@@ -44,11 +45,23 @@
         let ifDef   = stmt.MakeLeadingIfDirective()
         let elseDef = stmt.MakeLeadingElseDirective()
         let endDef  = stmt.MakeTrailingEndDirective()
-        let ifStmt  = stmt.WithLeadingTrivia(ifDef) :> SyntaxNode
+        let ifStmt  = stmt.WithLeadingTrivia(ifDef) 
 
-        let elseStmt = elseStmt.WithLeadingTrivia(elseDef).WithTrailingTrivia(endDef)
+        let stmts = 
+            seq { 
+                yield ifStmt
+                match elseStmt with
+                | Block stmts -> 
+                    let first = stmts.First().WithLeadingTrivia(elseDef)
+                    let stmts = stmts.Replace(stmts.First(), first)
+                    let last = stmts.Last().WithTrailingTrivia(endDef)
+                    yield! stmts.Replace(stmts.Last(), last) :> seq<_>
+                | :? StatementSyntax as s -> yield! Seq.singleton s
+                | _ -> failwith "Internal error, expected one or more statements"
+            }
+            |> Seq.cast<SyntaxNode>
 
-        block.ReplaceNode(stmt, [| ifStmt; elseStmt |])
+        block.ReplaceNode(stmt, stmts)
 
     let markWithComment(candidate: OptimizationCandidate) =
         match candidate.ContainingStatement, candidate.ContainingBlock with
