@@ -99,11 +99,8 @@ namespace LooperAnalyzer.Test
             this.output = output;
         }
 
-        protected async Task VerifyCodeGen<T>(CodeGenTemplate template, string[] inits, string linqExpr)
+        protected async Task VerifyCodeGen<T>(string code, string resultExpr)
         {
-            template.ResultType = typeof(T).FullName;
-            var code = template.Format(inits, linqExpr);
-
             var script = fixture.DefaultScript.ContinueWith(code);
             var compilation = script.GetCompilation();
             var tree = compilation.SyntaxTrees.Single();
@@ -126,10 +123,17 @@ namespace LooperAnalyzer.Test
 
             output.WriteLine("codegen : {0}", codegen);
 
-            var expected = await script.ContinueWith<T>(template.ResultExpression).RunAsync();
-            var actual = await script.ContinueWith<T>(codegen).ContinueWith(template.ResultExpression).RunAsync();
+            var expected = await script.ContinueWith<T>(resultExpr).RunAsync();
+            var actual = await script.ContinueWith<T>(codegen).ContinueWith(resultExpr).RunAsync();
 
             Assert.Equal(expected.ReturnValue, actual.ReturnValue);
+        }
+
+        protected async Task VerifyCodeGen<T>(CodeGenTemplate template, string[] inits, string linqExpr)
+        {
+            template.ResultType = typeof(T).FullName;
+            var code = template.Format(inits, linqExpr);
+            await VerifyCodeGen<T>(code, template.ResultExpression);
         }
     }
 }
