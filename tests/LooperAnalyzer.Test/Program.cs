@@ -1,12 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Immutable;
+﻿using System.Threading.Tasks;
 
 namespace LooperAnalyzer.Test.Scripts
 {
@@ -15,8 +7,9 @@ namespace LooperAnalyzer.Test.Scripts
 
         public static void Main(string[] args)
         {
-            var tests = new CodegenTests();
-            Task.Run(() => tests.RangeSelectSum()).Wait();
+            var fixture = new CodeGenFixture();
+            var tests = new CodeGenTests(fixture);
+            Task.Run(() => tests.ArrayExprSum()).Wait();
         }
     }
 }

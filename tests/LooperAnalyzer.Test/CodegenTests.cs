@@ -14,41 +14,35 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LooperAnalyzer.Test
 {
-    //public class CodegenFixture : IDisposable
-    //{
-    //    public CSharpCompilation DefaultCompilation { get; private set; }
-    //    public ScriptOptions DefaultScriptOptions { get; private set; }
-
-    //    public CodegenFixture()
-    //    {
-    //        var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-    //        var systemCore = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
-    //        var compilation = CSharpCompilation.Create("UnitTestCompilation").AddReferences(mscorlib, systemCore);
-    //        SymbolUtils.initializeFromCompilation(compilation);
-
-    //        DefaultScriptOptions = ScriptOptions.Default
-    //            .WithImports("System")
-    //            .WithImports("System.Linq")
-    //            .WithReferences("mscorlib")
-    //            .WithReferences("System.Core");
-    //        DefaultCompilation = compilation;
-    //    }
-
-    //    public void Dispose()
-    //    {
-
-    //    }
-    //}
-
-
-    public class CodegenTests : CodeFixVerifier //, IClassFixture<CodegenFixture>
+    public class CodeGenFixture : IDisposable
     {
-        //CodegenFixture fixture;
+        public Script DefaultScript { get; private set; }
 
-        //public CodegenTests(CodegenFixture fixture)
-        //{
-        //    this.fixture = fixture;
-        //}
+        public CodeGenFixture()
+        {
+            DefaultScript = CSharpScript.Create(
+                "",
+                ScriptOptions.Default
+                .WithReferences(typeof(object).Assembly)
+                .WithReferences(typeof(Enumerable).Assembly));
+
+            SymbolUtils.initializeFromCompilation(DefaultScript.GetCompilation());
+        }
+
+        public void Dispose()
+        {
+
+        }
+    }
+
+    public class CodeGenTests : IClassFixture<CodeGenFixture>
+    {
+        CodeGenFixture fixture;
+
+        public CodeGenTests(CodeGenFixture fixture)
+        {
+            this.fixture = fixture;
+        }
 
         async Task VerifyCodeGen(string linq)
         {
@@ -59,11 +53,7 @@ namespace LooperAnalyzer.Test
                     return test; 
                 }";
 
-            var script = CSharpScript.Create(code, 
-                ScriptOptions.Default
-                .WithReferences(typeof(object).Assembly)
-                .WithReferences(typeof(Enumerable).Assembly));
-
+            var script = fixture.DefaultScript.ContinueWith(code);
             var compilation = script.GetCompilation();
             var tree = compilation.SyntaxTrees.Single();
             var model = compilation.GetSemanticModel(tree);
@@ -75,7 +65,6 @@ namespace LooperAnalyzer.Test
 
             Assert.NotNull(expr);
 
-            SymbolUtils.initializeFromCompilation(compilation);
             var stmtQuery = QueryTransformer.toStmtQueryExpr(expr, model)?.Value;
             
             Assert.NotNull(stmtQuery);
@@ -89,9 +78,14 @@ namespace LooperAnalyzer.Test
             
             Assert.Equal(expected.ReturnValue, actual.ReturnValue);
         }
-        
-        [Fact(DisplayName = "Simple LINQ expression")]
-        public async Task RangeSelectSum() => await VerifyCodeGen("Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
+
+        [Fact(DisplayName = "Producer array expression > Sum")]
+        public async Task ArrayExprSum() => 
+            await VerifyCodeGen("new { 1, 2, 3 }.Sum()");
+
+        [Fact(DisplayName = "Producer range expression > Select > Sum")]
+        public async Task RangeExprSelectSum() => 
+            await VerifyCodeGen("Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
 
     }
 }
