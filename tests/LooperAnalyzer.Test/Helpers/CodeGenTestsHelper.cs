@@ -12,6 +12,9 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Abstractions;
+using Xunit.Sdk;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 
 namespace LooperAnalyzer.Test
 {
@@ -41,16 +44,19 @@ namespace LooperAnalyzer.Test
         public string Name { get; set; }
         public string ResultExpression { get; set; }
         public string Template { get; set; }
+        public string ResultType { get; set; } = "object";
 
         public override string ToString() => Name;
 
-        public string Format(string[] inits, string expr) => string.Format(Template, string.Join(Environment.NewLine, inits), expr);
+        public string Format(string[] inits, string expr) => 
+            string.Format(Template, ResultType, string.Join(Environment.NewLine, inits), expr);
 
         public void Deserialize(IXunitSerializationInfo info)
         {
             Name = info.GetValue<string>(nameof(Name));
             ResultExpression = info.GetValue<string>(nameof(ResultExpression));
             Template = info.GetValue<string>(nameof(Template));
+            ResultType = info.GetValue<string>(nameof(ResultType));
         }
 
         public void Serialize(IXunitSerializationInfo info)
@@ -58,6 +64,7 @@ namespace LooperAnalyzer.Test
             info.AddValue(nameof(Name), Name);
             info.AddValue(nameof(ResultExpression), ResultExpression);
             info.AddValue(nameof(Template), Template);
+            info.AddValue(nameof(ResultType), ResultType);
         }
 
         public static CodeGenTemplate[] Templates =
@@ -69,9 +76,9 @@ namespace LooperAnalyzer.Test
                     ResultExpression = "Test()",
                     Template = @"
                         using System.Linq;
-                        object Test() {{
-                            {0};
-                            var test = {1};
+                        {0} Test() {{
+                            {1};
+                            var test = {2};
                             return test;
                         }}"
                 },
@@ -82,39 +89,63 @@ namespace LooperAnalyzer.Test
     {
         protected readonly CodeGenFixture fixture;
         protected readonly string[] emptyInits = new string[0];
-
-        public CodeGenTestsBase(CodeGenFixture fixture)
-        {
-            this.fixture = fixture;
-        }
+        private readonly ITestOutputHelper output;
 
         public static readonly CodeGenTemplate[][] Templates = CodeGenTemplate.Templates.Select(t => new[] { t }).ToArray();
 
-        protected async Task VerifyCodeGen(CodeGenTemplate template, string[] inits, string linqExpr)
+        public CodeGenTestsBase(CodeGenFixture fixture, ITestOutputHelper output)
         {
+            this.fixture = fixture;
+            this.output = output;
+        }
+
+        protected async Task VerifyCodeGen<T>(CodeGenTemplate template, string[] inits, string linqExpr)
+        {
+            template.ResultType = typeof(T).FullName;
             var code = template.Format(inits, linqExpr);
 
             var script = fixture.DefaultScript.ContinueWith(code);
             var compilation = script.GetCompilation();
             var tree = compilation.SyntaxTrees.Single();
             var model = compilation.GetSemanticModel(tree);
+            var root = tree.GetRoot();
 
-            var stmtQuery = tree.GetRoot()
+            var stmtQuery = root
                 .DescendantNodes()
                 .OfType<LocalDeclarationStatementSyntax>()
                 .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, model)?.Value })
                 .SingleOrDefault(e => e.LooperStmt != null);
 
-            Assert.NotNull(stmtQuery);
+            var codegen = "";
 
-            var codegen = tree.GetRoot()
-                .ReplaceNode(stmtQuery.Node, Compiler.compile(stmtQuery.LooperStmt, model))
-                .ToFullString();
+            try {
+                Assert.NotNull(stmtQuery);
 
-            var expected = await script.ContinueWith(template.ResultExpression).RunAsync();
-            var actual = await script.ContinueWith(codegen).ContinueWith(template.ResultExpression).RunAsync();
+                codegen = tree.GetRoot()
+                    .ReplaceNode(stmtQuery.Node, Compiler.compile(stmtQuery.LooperStmt, model))
+                    .ToFullString();
 
-            Assert.Equal(expected.ReturnValue, actual.ReturnValue);
+                var expected = await script.ContinueWith<T>(template.ResultExpression).RunAsync();
+                var actual = await script.ContinueWith<T>(codegen).ContinueWith(template.ResultExpression).RunAsync();
+
+                Assert.Equal(expected.ReturnValue, actual.ReturnValue);
+            }
+            catch(NotNullException) {
+                output.WriteLine("Could not find appropriate Linq expression : \r\n{0}", root.ToFullString());
+                throw;
+            }
+            catch(NotEqualException) {
+                output.WriteLine("Results not equal for original : \r\n{0}\r\ncodegen : \r\n{1}",
+                    root.ToFullString(),
+                    codegen);
+                throw;
+            }
+            catch(CompilationErrorException) {
+                output.WriteLine("Compilation failed original : \r\n{0}\r\ncodegen : \r\n{1}",
+                    root.ToFullString(),
+                    codegen);
+                throw;
+            }
         }
     }
 }
