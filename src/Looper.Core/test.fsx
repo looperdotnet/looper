@@ -31,7 +31,9 @@ using System;
 using System.Linq;
 void Foo () {
     var xs = Enumerable.Range(1, 10);
-    var ys = xs.Select(x => x + 1);
+    do {
+        ;
+    }while(xs.Select(x => x + 1).Any());
 }
 """
 
@@ -42,7 +44,15 @@ let compilation = CSharpCompilation.Create("TestCompilation").AddReferences(msco
 let model = compilation.GetSemanticModel(syntax, false)
 let root = syntax.GetRoot()
 
-root.DescendantNodes().OfType<InvocationExpressionSyntax>()
-|> Seq.map(fun n -> model.GetSymbolInfo(n.Expression))
+//root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+//|> Seq.map(fun n -> model.GetSymbolInfo(n.Expression))
 
+SymbolUtils.initializeFromCompilation compilation
 
+let expr =
+    root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+    |> Seq.filter (fun e -> QueryTransformer.toQueryExpr e model <> None)
+    |> Seq.exactlyOne
+
+let newRoot = Transformer.refactor model root expr
+newRoot.Value.ToFullString()
