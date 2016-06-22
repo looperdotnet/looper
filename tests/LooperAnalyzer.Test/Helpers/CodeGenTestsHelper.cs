@@ -110,11 +110,10 @@ namespace LooperAnalyzer.Test
 
             output.WriteLine("original\r\n{0}", root.ToFullString());
 
-            Assert.NotNull(stmtQuery);
+            Assert.False(stmtQuery == null, 
+                $"{nameof(QueryTransformer)} could not find an appropriate expression.");
 
             var newRoot = CodeTransformer.markWithDirective(model, root, stmtQuery.Node);
-
-            Assert.False(root.IsEquivalentTo(newRoot));
 
             var codegen = // TODO
                 $"#define {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
@@ -124,6 +123,9 @@ namespace LooperAnalyzer.Test
             
             output.WriteLine("codegen\r\n{0}", codegen);
 
+            Assert.False(root.IsEquivalentTo(newRoot),
+                "Transformed syntax should not be equivalent to original.");
+
             var expected = await script
                 .ContinueWith<T>(resultExpr)
                 .RunProtectedAsync();
@@ -132,8 +134,6 @@ namespace LooperAnalyzer.Test
                 .ContinueWith(codegen)
                 .ContinueWith<T>(resultExpr)
                 .RunProtectedAsync();
-
-            //Assert.True(expected.CompareTo(actual) == 0);
 
             Assert.Equal(expected, actual);
         }
