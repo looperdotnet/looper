@@ -14,10 +14,10 @@ using Looper.Core;
 
 namespace LooperAnalyzer
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(RefactorAndReplaceWithIfDirective)), Shared]
-    public class RefactorAndReplaceWithIfDirective : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(RefactorToStatement)), Shared]
+    public class RefactorToStatement : CodeFixProvider
     {
-        private const string title = "Refactor and replace with conditional optimization";
+        private const string title = "Refactor Linq expression to statement";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
             ImmutableArray.Create(LooperDiagnosticAnalyzer.NeedsRefactoringDiagnosticId);
@@ -47,12 +47,8 @@ namespace LooperAnalyzer
         {
             var model = await document.GetSemanticModelAsync(c);
             var oldRoot = await document.GetSyntaxRootAsync(c);
-            var refactoring = CodeTransformer.getRefactoring(model, oldRoot, stmt);
-            var newStmt = refactoring.RefactoredStatement;
-            var newDoc = document.WithSyntaxRoot(refactoring.NewRoot);
-            var newModel = await newDoc.GetSemanticModelAsync(c);
-            var finalRoot = CodeTransformer.markWithDirective(newModel, refactoring.NewRoot, refactoring.RefactoredStatement);
-            return newDoc.WithSyntaxRoot(finalRoot);
+            var newRoot = CodeTransformer.getRefactoring(model, oldRoot, stmt).NewRoot;
+            return document.WithSyntaxRoot(newRoot);
         }
     }
 }

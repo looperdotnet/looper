@@ -117,26 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InvalidExpressionAnalyzerDescription" xml:space="preserve">
+  <data name="InvalidNodeAnalyzerDescription" xml:space="preserve">
     <value>Marked element is not a valid Linq expression.</value>
   </data>
-  <data name="InvalidExpressionAnalyzerMessageFormat" xml:space="preserve">
+  <data name="InvalidNodeAnalyzerMessageFormat" xml:space="preserve">
     <value>Marked element is not a valid Linq expression.</value>
   </data>
-  <data name="InvalidExpressionAnalyzerTitle" xml:space="preserve">
+  <data name="InvalidNodeAnalyzerTitle" xml:space="preserve">
     <value>Marked element is not a valid Linq expression.</value>
   </data>
-  <data name="InvariantOptimizationAnalyzerDescription" xml:space="preserve">
-    <value>Linq expression may be optimized to a loop.</value>
-    <comment>An optional longer localizable description of the diagnostic.</comment>
+  <data name="NeedsRefactoringAnalyzerDescription" xml:space="preserve">
+    <value>Linq expression can be optimized to a loop if refactored first.</value>
   </data>
-  <data name="InvariantOptimizationAnalyzerMessageFormat" xml:space="preserve">
-    <value>Linq expression '{0}' can be optimized to a loop.</value>
-    <comment>The format-able message the diagnostic displays.</comment>
+  <data name="NeedsRefactoringAnalyzerMessageFormat" xml:space="preserve">
+    <value>Linq expression '{0}' can be optimized to a loop if refactored first.</value>
   </data>
-  <data name="InvariantOptimizationAnalyzerTitle" xml:space="preserve">
-    <value>Linq expression may be optimized to a loop.</value>
-    <comment>The title of the diagnostic.</comment>
+  <data name="NeedsRefactoringAnalyzerTitle" xml:space="preserve">
+    <value>Potential optimization.</value>
   </data>
   <data name="NoConsumerAnalyzerDescription" xml:space="preserve">
     <value>Linq expression is marked for optimization but cannot be optimized. This will have no affect on code generation. Linq expressions should end at consumer methods like 'ToArray', 'ToList', 'FirstOrDefault', etc.</value>
@@ -147,13 +144,16 @@
   <data name="NoConsumerAnalyzerTitle" xml:space="preserve">
     <value>Linq expression is marked but no suitable consumer found.</value>
   </data>
-  <data name="UnsafeOptimizationAnalyzerDescription" xml:space="preserve">
-    <value>Linq expression can be optimized to a loop if refactored first.</value>
+  <data name="OptimizableNodeAnalyzerDescription" xml:space="preserve">
+    <value>Linq expression can be optimized to a loop.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-  <data name="UnsafeOptimizationAnalyzerMessageFormat" xml:space="preserve">
-    <value>Linq expression '{0}' can be optimized to a loop if refactored first.</value>
+  <data name="OptimizableNodeAnalyzerMessageFormat" xml:space="preserve">
+    <value>Linq expression '{0}' can be optimized to a loop.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
   </data>
-  <data name="UnsafeOptimizationAnalyzerTitle" xml:space="preserve">
-    <value>Potential optimization.</value>
+  <data name="OptimizableNodeAnalyzerTitle" xml:space="preserve">
+    <value>Linq expression can be optimized to a loop.</value>
+    <comment>The title of the diagnostic.</comment>
   </data>
 </root>

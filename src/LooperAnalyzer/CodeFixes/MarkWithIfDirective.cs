@@ -20,7 +20,7 @@ namespace LooperAnalyzer
         private const string title = "Replace with conditional optimization";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
-            ImmutableArray.Create(LooperDiagnosticAnalyzer.InvariantOptimizationDiagnosticId);
+            ImmutableArray.Create(LooperDiagnosticAnalyzer.OptimizableDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -30,7 +30,7 @@ namespace LooperAnalyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root.FindNode(diagnosticSpan) as InvocationExpressionSyntax;
+            var declaration = root.FindNode(diagnosticSpan) as StatementSyntax;
 
             if (declaration == null) return;
 
@@ -43,23 +43,12 @@ namespace LooperAnalyzer
 
         }
 
-        private async Task<Document> ReplaceWithIfDirectiveAction(Document document, InvocationExpressionSyntax invocationExpr, CancellationToken c)
+        private async Task<Document> ReplaceWithIfDirectiveAction(Document document, StatementSyntax stmt, CancellationToken c)
         {
-            // Find a way to pass the fix from the analyzer to code fox provider
-            var semanticModel = await document.GetSemanticModelAsync(c);
-
-            var candidate = OptimizationCandidate.FromInvocation(semanticModel, invocationExpr);
-            var newBlock = candidate.NeedsRefactoring 
-                ? CodeTransformer.refactorAndMarkWithIfDirective(candidate)
-                : CodeTransformer.markWithIfDirective(candidate);
-
-            // Replace the old local declaration with the new local declaration.
+            var model = await document.GetSemanticModelAsync(c);
             var oldRoot = await document.GetSyntaxRootAsync(c);
-            var newRoot = oldRoot.ReplaceNode(candidate.ContainingBlock.Value, newBlock);
-
-            // Return document with transformed tree.
+            var newRoot = CodeTransformer.markWithDirective(model, oldRoot, stmt);
             return document.WithSyntaxRoot(newRoot);
-
         }
     }
 }
