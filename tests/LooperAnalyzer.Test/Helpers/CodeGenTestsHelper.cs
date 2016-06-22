@@ -1,20 +1,15 @@
 ﻿using Looper.Core;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using TestHelper;
 using Xunit;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Abstractions;
-using Xunit.Sdk;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.CSharp;
+using LooperAnalyzer.Test.Helpers;
 
 namespace LooperAnalyzer.Test
 {
@@ -113,20 +108,34 @@ namespace LooperAnalyzer.Test
                 .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, model)?.Value })
                 .SingleOrDefault(e => e.LooperStmt != null);
 
-            output.WriteLine("original : {0}", root.ToFullString());
+            output.WriteLine("original\r\n{0}", root.ToFullString());
 
             Assert.NotNull(stmtQuery);
 
-            var codegen = tree.GetRoot()
-                .ReplaceNode(stmtQuery.Node, Compiler.compile(stmtQuery.LooperStmt, model))
-                .ToFullString();
+            var newRoot = CodeTransformer.markWithDirective(model, root, stmtQuery.Node);
 
-            output.WriteLine("codegen : {0}", codegen);
+            Assert.False(root.IsEquivalentTo(newRoot));
 
-            var expected = await script.ContinueWith<T>(resultExpr).RunAsync();
-            var actual = await script.ContinueWith<T>(codegen).ContinueWith(resultExpr).RunAsync();
+            var codegen = // TODO
+                $"#define {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
+                $"#if {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
+                newRoot.ToFullString() + Environment.NewLine +
+                "#endif";
+            
+            output.WriteLine("codegen\r\n{0}", codegen);
 
-            Assert.Equal(expected.ReturnValue, actual.ReturnValue);
+            var expected = await script
+                .ContinueWith<T>(resultExpr)
+                .RunProtectedAsync();
+
+            var actual = await script
+                .ContinueWith(codegen)
+                .ContinueWith<T>(resultExpr)
+                .RunProtectedAsync();
+
+            //Assert.True(expected.CompareTo(actual) == 0);
+
+            Assert.Equal(expected, actual);
         }
 
         protected async Task VerifyCodeGen<T>(CodeGenTemplate template, string[] inits, string linqExpr)

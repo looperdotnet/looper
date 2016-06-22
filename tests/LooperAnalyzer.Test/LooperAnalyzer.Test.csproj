@@ -14,6 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetProfile>netcore</TargetProfile>
+    <TargetFSharpCoreVersion>3.7.4.0</TargetFSharpCoreVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -28,8 +30,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetProfile>netcore</TargetProfile>
-    <TargetFSharpCoreVersion>3.7.4.0</TargetFSharpCoreVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="CodeGenTests.cs" />
     <Compile Include="Helpers\CodeGenTestsHelper.cs" />
+    <Compile Include="Helpers\ScriptResultHelpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Verifiers\CodeFixVerifier.cs" />
     <Compile Include="Verifiers\DiagnosticVerifier.cs" />

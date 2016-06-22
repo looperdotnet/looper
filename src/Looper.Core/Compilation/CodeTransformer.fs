@@ -27,7 +27,11 @@
                 | Block stmts -> 
                     let first = stmts.First().WithLeadingTrivia(elseDef)
                     let stmts = stmts.Replace(stmts.First(), first)
-                    let last = stmts.Last().WithTrailingTrivia(endDef)
+                    let last = 
+                        stmts.Last().WithTrailingTrivia(
+                            SyntaxTriviaList.
+                                Create(SyntaxFactory.ElasticCarriageReturnLineFeed).
+                                AddRange(endDef))
                     yield! stmts.Replace(stmts.Last(), last) :> seq<_>
                 | :? StatementSyntax as s -> yield! Seq.singleton s
                 | _ -> failwith "Internal error, expected one or more statements"

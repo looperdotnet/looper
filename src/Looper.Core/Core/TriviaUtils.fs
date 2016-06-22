@@ -5,7 +5,7 @@ open Microsoft.CodeAnalysis
 open Microsoft.CodeAnalysis.CSharp
 open Microsoft.CodeAnalysis.CSharp.Syntax
 
-let private ifDefIdentifier = "LOOPER"
+let ifDefIdentifier = "LOOPER"
 let private markerCommentText = "// looper"
 
 let private markerComment = SyntaxFactory.Comment(markerCommentText)
