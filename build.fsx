@@ -7,25 +7,27 @@ let debugDir = binDir @@ "Debug"
 let releaseDir = binDir @@ "Release"
 let solutionFile = "Looper.sln"
 
-Target "Clean" (fun _ -> CleanDirs [binDir])
+let configuration = 
+    match getBuildParam "Configuration" with
+    | "" -> environVarOrDefault "Configuration" "Debug"
+    | c  -> c
 
-Target "Core" (fun _ ->
-    !! "src/**/LooperAnalyzer.csproj"
-        |> MSBuildDebug "" "Build"
-        |> Log "AppBuild-Output: "
+Target "Clean" (fun _ -> 
+    CleanDirs [binDir]
+    CleanDirs !! "./**/bin/"
+    CleanDirs !! "./**/obj/"
 )
 
-Target "Tests" (fun _ ->
-    !! "tests/**/*.csproj"
-        |> MSBuildDebug "" "Build"
-        |> Log "AppBuild-Output: "    
-)
+let build includes () =
+    includes
+    |> MSBuild "" "Build" ["Configuration", configuration]
+    |> Log "AppBuild-Output: "
 
-Target "All" (fun _ ->
-    !! solutionFile
-    |> MSBuildDebug "" "Rebuild"
-    |> ignore
-)
+Target "Core" (!! "src/**/LooperAnalyzer.csproj" |> build)
+
+Target "Tests" (!! "tests/**/*.csproj" |> build)
+
+Target "All" (!! solutionFile |> build)
 
 Target "Xunit" (fun _ ->
     !! (debugDir @@ "*.Test.exe")
