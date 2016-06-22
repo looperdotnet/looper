@@ -69,13 +69,13 @@ namespace LooperAnalyzer.Test
                 {
                     Name = "Local declaration in method body",
                     ResultExpression = "Test()",
-                    Template = @"
-                        using System.Linq;
-                        {0} Test() {{
-                            {1};
-                            var test = {2};
-                            return test;
-                        }}"
+                    Template =
+@"using System.Linq;
+{0} Test() {{
+    {1}
+    var test = {2};
+    return test;
+}}"
                 },
             };
     }

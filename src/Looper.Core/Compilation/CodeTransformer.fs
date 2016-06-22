@@ -13,7 +13,7 @@
         let newStmt = stmt.WithLeadingTrivia(leadingTrivia)
         block, block.ReplaceNode(stmt, newStmt)
 
-    let private markStatementWithIfDirective(stmt : StatementSyntax, elseStmt: SyntaxNode) =
+    let private markStatementWithIfDirective(stmt : StatementSyntax, stmts: SyntaxList<StatementSyntax>) =
         let block   = stmt.FirstAncestorOrSelf<BlockSyntax>() // TODO
         let ifDef   = stmt.MakeLeadingIfDirective()
         let elseDef = stmt.MakeLeadingElseDirective()
@@ -23,20 +23,15 @@
         let stmts = 
             seq { 
                 yield ifStmt
-                match elseStmt with
-                | Block stmts -> 
-                    let first = stmts.First().WithLeadingTrivia(elseDef)
-                    let stmts = stmts.Replace(stmts.First(), first)
-                    let last = 
-                        stmts.Last().WithTrailingTrivia(
-                            SyntaxTriviaList.
-                                Create(SyntaxFactory.ElasticCarriageReturnLineFeed).
-                                AddRange(endDef))
-                    yield! stmts.Replace(stmts.Last(), last) :> seq<_>
-                | :? StatementSyntax as s -> yield! Seq.singleton s
-                | _ -> failwith "Internal error, expected one or more statements"
-            }
-            |> Seq.cast<SyntaxNode>
+                let first = stmts.First().WithLeadingTrivia(elseDef)
+                let stmts = stmts.Replace(stmts.First(), first)
+                let last = 
+                    stmts.Last().WithTrailingTrivia(
+                        SyntaxTriviaList.
+                            Create(SyntaxFactory.ElasticCarriageReturnLineFeed).
+                            AddRange(endDef))
+                yield! stmts.Replace(stmts.Last(), last) :> seq<_>
+            } |> Seq.cast<SyntaxNode>
 
         block, block.ReplaceNode(stmt, stmts)
 
@@ -52,6 +47,7 @@
         match node with
         | StmtQueryExpr model query ->
             let optimized = Compiler.compile query model
+                            |> Formatter.format
             let oldBlock, newBlock = markStatementWithIfDirective(node, optimized)
             root.ReplaceNode(oldBlock, newBlock)
         | _ -> 
