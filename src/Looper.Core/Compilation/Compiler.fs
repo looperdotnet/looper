@@ -4,7 +4,6 @@
     open Microsoft.CodeAnalysis.CSharp
     open Microsoft.CodeAnalysis.CSharp.Syntax
     open System
-    open Looper.Core.SymbolUtils
     open Looper.Core.SyntaxPatterns
 
     let rec compileQuery (query : QueryExpr) (model : SemanticModel) (k : ExpressionSyntax -> StatementSyntax) : StatementSyntax =

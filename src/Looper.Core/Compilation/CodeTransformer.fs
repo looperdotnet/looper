@@ -36,16 +36,17 @@
         block, block.ReplaceNode(stmt, stmts)
 
 
-    let getRefactoring (model : SemanticModel, root : SyntaxNode, node : InvocationExpressionSyntax) =
+    let getRefactoring (root : SyntaxNode, node : InvocationExpressionSyntax) =
         match node with
-        | RefactoringTransformer.CanBeRefactored model root refactoring ->
+        | RefactoringTransformer.CanBeRefactored root refactoring ->
             refactoring
         | _ ->
             failwith "Internal error, node cannot be refactored"
 
     let markWithDirective (model : SemanticModel, root : SyntaxNode, node : StatementSyntax) =
+        let checker = SymbolChecker(model) // TODO
         match node with
-        | StmtQueryExpr model query ->
+        | StmtQueryExpr checker query ->
             let optimized = Compiler.compile query model
                             |> Formatter.format
             let oldBlock, newBlock = markStatementWithIfDirective(node, optimized)

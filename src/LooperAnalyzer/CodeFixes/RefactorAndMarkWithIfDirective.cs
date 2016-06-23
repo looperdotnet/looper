@@ -47,7 +47,7 @@ namespace LooperAnalyzer
         {
             var model = await document.GetSemanticModelAsync(c);
             var oldRoot = await document.GetSyntaxRootAsync(c);
-            var refactoring = CodeTransformer.getRefactoring(model, oldRoot, stmt);
+            var refactoring = CodeTransformer.getRefactoring(oldRoot, stmt);
             var newStmt = refactoring.RefactoredStatement;
             var newDoc = document.WithSyntaxRoot(refactoring.NewRoot);
             var newModel = await newDoc.GetSemanticModelAsync(c);

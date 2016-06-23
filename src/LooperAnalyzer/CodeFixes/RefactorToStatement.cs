@@ -47,7 +47,7 @@ namespace LooperAnalyzer
         {
             var model = await document.GetSemanticModelAsync(c);
             var oldRoot = await document.GetSyntaxRootAsync(c);
-            var newRoot = CodeTransformer.getRefactoring(model, oldRoot, stmt).NewRoot;
+            var newRoot = CodeTransformer.getRefactoring(oldRoot, stmt).NewRoot;
             return document.WithSyntaxRoot(newRoot);
         }
     }

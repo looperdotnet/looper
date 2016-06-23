@@ -17,7 +17,7 @@
 #r "../../packages/Microsoft.Composition/lib/portable-net45+win8+wp8+wpa81/System.Composition.Runtime.dll"
 #r "../../packages/Microsoft.Composition/lib/portable-net45+win8+wp8+wpa81/System.Composition.TypedParts.dll"
 #r "../../packages/System.Reflection.Metadata/lib/portable-net45+win8/System.Reflection.Metadata.dll"
-#r "../../bin/Debug/Looper.Core.dll"
+#r "../../output/bin/Looper.Core.dll"
 
 open System
 open System.Linq

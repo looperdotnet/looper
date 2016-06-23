@@ -4,67 +4,67 @@
     open Microsoft.CodeAnalysis.CSharp
     open Microsoft.CodeAnalysis.CSharp.Syntax
     open Looper.Core.SyntaxPatterns
-    open Looper.Core.SymbolUtils
 
-    let (|LinqInvocation|_|) (model : SemanticModel) = 
+    let private (|LinqInvocation|_|) (checker : SymbolChecker) = 
         function 
         | InvocationExpression(MemberAccessExpression(IdentifierName name, expr) as memberExpr, args) -> 
-            match model.GetSymbolInfo(memberExpr).Symbol with
-            | LinqMethod _ -> Some(expr, name, args)
+            let symbol = checker.SemanticModel.GetSymbolInfo(memberExpr).Symbol
+            match checker.IsLinqMethodType(symbol) with
+            | Some _ -> Some(expr, name, args)
             | _ -> None
         | _ -> None
 
-    let producerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option =
+    let private producerMatch (node : SyntaxNode) (checker : SymbolChecker) : QueryExpr option =
         match node with 
         | IdentifierName _ -> 
-            match model.GetSymbolInfo(node).Symbol with
+            match checker.SemanticModel.GetSymbolInfo(node).Symbol with
             | :? ILocalSymbol as symbol -> Some (SourceIdentifierName (symbol.Type, node :?> IdentifierNameSyntax))
             | _ -> None
         | :? ExpressionSyntax as expr -> Some(SourceExpression expr)
         | _ -> None
 
-    let rec intermediateMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
+    let rec private intermediateMatch (node : SyntaxNode) (checker : SymbolChecker) : QueryExpr option = 
         match node with 
-        | LinqInvocation model (expr, "Select", [SimpleLambdaExpression (param, body)]) ->
-            intermediateMatch expr model |> Option.map (fun expr -> Select (Lambda (param, body), expr))
-        | LinqInvocation model (expr, "Where", [SimpleLambdaExpression (param, body)]) ->
-            intermediateMatch expr model |> Option.map (fun expr -> Where (Lambda (param, body), expr))
-        | _ -> producerMatch node model
+        | LinqInvocation checker (expr, "Select", [SimpleLambdaExpression (param, body)]) ->
+            intermediateMatch expr checker |> Option.map (fun expr -> Select (Lambda (param, body), expr))
+        | LinqInvocation checker (expr, "Where", [SimpleLambdaExpression (param, body)]) ->
+            intermediateMatch expr checker |> Option.map (fun expr -> Where (Lambda (param, body), expr))
+        | _ -> producerMatch node checker
 
-    let consumerMatch (node : SyntaxNode) (model : SemanticModel) : QueryExpr option = 
+    let private consumerMatch (node : SyntaxNode) (checker : SymbolChecker) : QueryExpr option = 
         match node with 
-        | LinqInvocation model (expr, "Sum", []) ->
-            intermediateMatch expr model |> Option.map Sum 
-        | LinqInvocation model (expr, "First", []) ->
-            intermediateMatch expr model |> Option.map First 
-        | LinqInvocation model (expr, "Any", []) ->
-            intermediateMatch expr model |> Option.map Any
+        | LinqInvocation checker (expr, "Sum", []) ->
+            intermediateMatch expr checker |> Option.map Sum 
+        | LinqInvocation checker (expr, "First", []) ->
+            intermediateMatch expr checker |> Option.map First 
+        | LinqInvocation checker (expr, "Any", []) ->
+            intermediateMatch expr checker |> Option.map Any
         | _ -> None
 
-    let toQueryExpr (node : SyntaxNode) (model : SemanticModel) : QueryExpr option =
-        consumerMatch node model
+    let toQueryExpr (node : SyntaxNode) (checker : SymbolChecker) : QueryExpr option =
+        consumerMatch node checker
 
-    let (|QueryExpr|_|) (model : SemanticModel) (node : SyntaxNode) =
-        toQueryExpr node model
+    let (|QueryExpr|_|) (checker : SymbolChecker) (node : SyntaxNode) =
+        toQueryExpr node checker
 
-    let toStmtQueryExpr (node : SyntaxNode) (model : SemanticModel) : StmtQueryExpr option =
+    let toStmtQueryExpr (node : SyntaxNode) (checker : SymbolChecker) : StmtQueryExpr option =
         match node with
-        | LocalDeclarationStatement (modifiers, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr model expr))])) -> 
-            let typeSymbol = model.GetSymbolInfo(typeSyntax).Symbol :?> INamedTypeSymbol
+        | LocalDeclarationStatement (_, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (QueryExpr checker expr))])) -> 
+            let typeSymbol = checker.SemanticModel.GetSymbolInfo(typeSyntax).Symbol :?> INamedTypeSymbol
             Some (Assign (typeSyntax, typeSymbol, identifier, expr))
         | _ -> None
 
-    let (|StmtQueryExpr|_|) (model : SemanticModel) (node : SyntaxNode) =
-        toStmtQueryExpr node model
+    let (|StmtQueryExpr|_|) (checker : SymbolChecker) (node : SyntaxNode) =
+        toStmtQueryExpr node checker
 
-    let (|NoConsumerQuery|_|) (model : SemanticModel) (node : SyntaxNode) =
-        match intermediateMatch node model with
-        | Some _ as m when producerMatch node model = None -> m
+    let (|NoConsumerQuery|_|) (checker : SymbolChecker) (node : SyntaxNode) =
+        match intermediateMatch node checker with
+        | Some _ as m when producerMatch node checker = None -> m
         | _ -> None
 
-    let (|StmtNoConsumerQuery|_|) (model : SemanticModel) (node : SyntaxNode)  =
+    let (|StmtNoConsumerQuery|_|) (checker : SymbolChecker) (node : SyntaxNode)  =
         match node with
-        | LocalDeclarationStatement (_, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery model expr))])) -> 
-            let typeSymbol = model.GetSymbolInfo(typeSyntax).Symbol :?> ITypeSymbol
+        | LocalDeclarationStatement (_, VariableDeclaration (typeSyntax, [VariableDeclarator (identifier, _, EqualsValueClause (NoConsumerQuery checker expr))])) -> 
+            let typeSymbol = checker.SemanticModel.GetSymbolInfo(typeSyntax).Symbol :?> ITypeSymbol
             Some (Assign (typeSyntax, typeSymbol, identifier, expr))
         | _ -> None

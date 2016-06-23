@@ -24,8 +24,6 @@ namespace LooperAnalyzer.Test
                 ScriptOptions.Default
                 .WithReferences(typeof(object).Assembly)
                 .WithReferences(typeof(Enumerable).Assembly));
-
-            SymbolUtils.initializeFromCompilation(DefaultScript.GetCompilation());
         }
 
         public void Dispose()
@@ -100,12 +98,13 @@ namespace LooperAnalyzer.Test
             var compilation = script.GetCompilation();
             var tree = compilation.SyntaxTrees.Single();
             var model = compilation.GetSemanticModel(tree);
+            var checker = new SymbolChecker(model);
             var root = tree.GetRoot();
 
             var stmtQuery = root
                 .DescendantNodes()
                 .OfType<LocalDeclarationStatementSyntax>()
-                .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, model)?.Value })
+                .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, checker)?.Value })
                 .SingleOrDefault(e => e.LooperStmt != null);
 
             output.WriteLine("original\r\n{0}", root.ToFullString());

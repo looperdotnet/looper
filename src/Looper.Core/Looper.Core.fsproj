@@ -50,7 +50,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Core\QueryExpr.fs" />
     <Compile Include="Core\Patterns.fs" />
-    <Compile Include="Core\SymbolUtils.fs" />
+    <Compile Include="Core\SymbolChecker.fs" />
     <Compile Include="Core\SyntaxUtils.fs" />
     <Compile Include="Core\TriviaUtils.fs" />
     <Compile Include="Analysis\QueryTransformer.fs" />

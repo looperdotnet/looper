@@ -11,7 +11,7 @@ namespace LooperAnalyzer.Test.Scripts
         {
             var fixture = new CodeGenFixture();
             var tests = new CodeGenTests(fixture, new ConsoleOutputHelper());
-            Task.Run(() => tests.InlineRangeSelectSum(CodeGenTemplate.Templates[0])).Wait();
+            Task.Run(() => tests.SimpleArraySum(CodeGenTemplate.Templates[0])).Wait();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper

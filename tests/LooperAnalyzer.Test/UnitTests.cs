@@ -42,15 +42,15 @@ namespace LooperAnalyzer.Test
                 .Create("HelloWorld")
                 .AddReferences(mscorlib, systemCore)
                 .AddSyntaxTrees(tree);
-
-            SymbolUtils.initializeFromCompilation(compilation);
+            
             var model = compilation.GetSemanticModel(tree);
+            var checker = new SymbolChecker(model);
             var syntaxTree = model.SyntaxTree;
             var root = syntaxTree.GetRoot();
             var tests = root.DescendantNodes().OfType<BlockSyntax>().ToArray();
             foreach (var stmt in tests[0].Statements)
             {
-                var queryExprOption = QueryTransformer.toStmtQueryExpr(stmt, model);
+                var queryExprOption = QueryTransformer.toStmtQueryExpr(stmt, checker);
                 if (queryExprOption != null)
                 {
                     var newStmt = Compiler.compile(queryExprOption.Value, model).NormalizeWhitespace().ToFullString();

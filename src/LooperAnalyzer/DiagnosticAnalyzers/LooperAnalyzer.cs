@@ -59,7 +59,6 @@ namespace LooperAnalyzer
         private static void AnalyzeSemanticModel(SemanticModelAnalysisContext context)
         {
             var model = context.SemanticModel;
-            SymbolUtils.initializeFromCompilation(model.Compilation);
 
             foreach (var node in Analyzer.analyze(model)) {
                 Diagnostic diagnostic = null;

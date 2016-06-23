@@ -27,6 +27,7 @@
 
         let nodes = new List<AnalyzedNode>()
         let invalidTrivia = new HashSet<SyntaxTrivia>()
+        let checker = SymbolChecker(model)
 
         member __.Results = nodes
 
@@ -37,12 +38,12 @@
                 | _ -> None
             
             match node with 
-            | StmtQueryExpr model _  ->
+            | StmtQueryExpr checker _  ->
                 if triviaMark.IsNone then
                     nodes.Add(Optimizable node)
-            | StmtNoConsumerQuery model _ when triviaMark.IsSome ->
+            | StmtNoConsumerQuery checker _ when triviaMark.IsSome ->
                 nodes.Add(NoConsumer node)
-            | QueryExpr model _ when Option.isSome(refactor model (model.SyntaxTree.GetRoot()) node) ->
+            | QueryExpr checker _ when Option.isSome(refactor (model.SyntaxTree.GetRoot()) node) ->
                 nodes.Add(NeedsRefactoring(node :?> InvocationExpressionSyntax))
             | _ ->
                 match triviaMark with

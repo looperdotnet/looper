@@ -4,7 +4,6 @@
     open Microsoft.CodeAnalysis.CSharp
     open Microsoft.CodeAnalysis.CSharp.Syntax
     open System
-    open Looper.Core.SymbolUtils
     open Looper.Core.SyntaxPatterns
     open System.Diagnostics
     open Microsoft.CodeAnalysis.CSharp.CodeGeneration
@@ -15,9 +14,7 @@
     }
 
     /// Refactors an expr to a variable declaration.
-    let refactor (model : SemanticModel) (root : SyntaxNode) (expr : SyntaxNode) : Refactoring option =
-        Debug.Assert((QueryTransformer.toQueryExpr expr model).IsSome)
-
+    let refactor (root : SyntaxNode) (expr : SyntaxNode) : Refactoring option =
         let variable = "refactored"
         let varDeclStmt = parseStmtf "var %s = %s;" variable (toStr expr) :> StatementSyntax
         let varExpr = parseExpr variable
@@ -59,4 +56,4 @@
         | LocalDeclarationStatement _ -> None
         | parent -> refactor parent
 
-    let (|CanBeRefactored|_|) model root expr = refactor model root expr 
+    let (|CanBeRefactored|_|) root expr = refactor root expr 
