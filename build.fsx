@@ -1,11 +1,16 @@
 ﻿#r @"packages/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.Testing
+open System
 
-let binDir = "bin"
-let debugDir = binDir @@ "Debug"
-let releaseDir = binDir @@ "Release"
+let cwd = __SOURCE_DIRECTORY__ 
+Environment.CurrentDirectory <- cwd
+
 let solutionFile = "Looper.sln"
+let outDir = "output"
+let binDir = outDir @@ "bin"
+let testsDir = outDir @@ "tests"
+let publishDir = outDir @@ "publish"
 
 let configuration = 
     match getBuildParam "Configuration" with
@@ -13,7 +18,7 @@ let configuration =
     | c  -> c
 
 Target "Clean" (fun _ -> 
-    CleanDirs [binDir]
+    CleanDirs [outDir]
     CleanDirs !! "./**/bin/"
     CleanDirs !! "./**/obj/"
 )
@@ -21,30 +26,26 @@ Target "Clean" (fun _ ->
 let build includes () =
     includes
     |> MSBuild "" "Build" ["Configuration", configuration]
-    |> Log "AppBuild-Output: "
+    |> Log ("AppBuild-" + configuration + " Output: ")
 
-Target "Core" (!! "src/**/LooperAnalyzer.csproj" |> build)
-
-Target "Tests" (!! "tests/**/*.csproj" |> build)
-
-Target "All" (!! solutionFile |> build)
+Target "Build" (!! solutionFile |> build)
 
 Target "Xunit" (fun _ ->
-    !! (debugDir @@ "*.Test.exe")
+    CreateDir testsDir
+    let xunitOut = cwd @@ testsDir @@ "xunit.html"
+    
+    !! (binDir @@ "*.Test.exe")
     |> xUnit2 (fun p -> 
-        { p with HtmlOutputPath = Some(debugDir @@ "xunit.html")
+        { p with HtmlOutputPath = Some xunitOut
                  Parallel = ParallelMode.All })
 )
 
+Target "List" PrintTargets
 Target "Default" DoNothing
 
-Target "List" PrintTargets
-
-"Clean" ==> "Core" ==> "Default"
-
-"Clean" ==> "All"
-
-"Clean" ==> "Tests" ==> "Xunit"
+"Clean"
+    ==> "Build" 
+    ==> "Default"
+    ==> "Xunit"
 
 RunTargetOrDefault "Default"
-
