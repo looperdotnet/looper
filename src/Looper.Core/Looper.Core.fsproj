@@ -56,6 +56,7 @@
     <Compile Include="Analysis\QueryTransformer.fs" />
     <Compile Include="Analysis\RefactoringTransformer.fs" />
     <Compile Include="Analysis\Analyzer.fs" />
+    <Compile Include="Compilation\FreshNameGen.fs" />
     <Compile Include="Compilation\Compiler.fs" />
     <Compile Include="Compilation\Formatter.fs" />
     <Compile Include="Compilation\CodeTransformer.fs" />

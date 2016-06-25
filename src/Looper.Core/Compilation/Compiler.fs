@@ -6,46 +6,52 @@
     open System
     open Looper.Core.SyntaxPatterns
 
-    let rec compileQuery (query : QueryExpr) (model : SemanticModel) (k : ExpressionSyntax -> StatementSyntax) : StatementSyntax =
+
+    let rec compileQuery (query : QueryExpr) (gen : FreshNameGen) (model : SemanticModel) (k : ExpressionSyntax -> StatementSyntax) : StatementSyntax =
         
         match query with
         | SourceExpression expr ->
-            let foreachStmt = parseForeach "__item__" (toStr expr)
-            let stmt = k (parseExpr "__item__")
+            let item = gen.Generate "item"
+            let foreachStmt = parseForeach item (toStr expr)
+            let stmt = k (parseExpr item)
             foreachStmt.WithStatement(block [stmt]) :> _
-        | SourceIdentifierName (ArrayType arrayTypeSymbol, identifier) ->    
+        | SourceIdentifierName (ArrayType arrayTypeSymbol, identifier) ->  
+            let index = gen.Generate "i"  
             let identifier = identifier.Identifier.ValueText
-            let forStmt = parseFor identifier
-            let stmt = k (parseIndexer identifier)
+            let forStmt = parseFor index identifier
+            let stmt = k (parseIndexer identifier index)
             forStmt.WithStatement(block [stmt]) :> _
         | SourceIdentifierName (_, identifier) ->
-            let foreachStmt = parseForeach "__item__" identifier.Identifier.ValueText
-            let stmt = k (parseExpr "__item__")
+            let item = gen.Generate "item"
+            let foreachStmt = parseForeach item identifier.Identifier.ValueText
+            let stmt = k (parseExpr item)
             foreachStmt.WithStatement(block [stmt]) :> _
         | Select (Lambda (param, Expression body), query) ->
-            let identifier = param.Identifier.ValueText
+            let identifier = gen.Generate param.Identifier.ValueText
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
                                 k body] :> StatementSyntax
-            compileQuery query model k
+            compileQuery query gen model k
         | Where (Lambda (param, Expression body), query) ->
-            let identifier = param.Identifier.ValueText
+            let identifier = gen.Generate param.Identifier.ValueText
             let ifStmt (predicate : ExpressionSyntax) (body : StatementSyntax) = 
                 parseStmtf "if (%s) { %s }" (toStr predicate) (toStr body)
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
                                 ifStmt body (k expr)] :> StatementSyntax 
-            compileQuery query model k
+            compileQuery query gen model k
         | Sum query -> 
-            let varDeclStmt = parseStmt "var __sum__ = 0;"
-            let assignStmt value = parseStmtf "__sum__ += %s;" value
-            let k expr = block [assignStmt (toStr expr); k (parseExpr "__sum__")] :> StatementSyntax
-            let loopStmt = compileQuery query model k
+            let sum = gen.Generate "sum"
+            let varDeclStmt = parseStmtf "var %s = 0;" sum
+            let assignStmt value = parseStmtf "%s += %s;" sum value
+            let k expr = block [assignStmt (toStr expr); k (parseExpr sum)] :> StatementSyntax
+            let loopStmt = compileQuery query gen model k
             block [varDeclStmt; loopStmt] :> _
         | _ -> throwNotImplemented :> _
 
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =
         match query with
         | Assign (typeSyntax, typeSymbol, identifier, queryExpr) -> 
+            let gen = FreshNameGen(typeSyntax, model)
             let varDeclStmt = parseStmtf "var %s = default(%s);" identifier.ValueText (typeSymbol.ToDisplayString())
             let assignStmt value = parseStmtf "%s = %s;" identifier.ValueText value
-            let loopStmt = compileQuery queryExpr model (fun expr -> assignStmt (toStr expr)) 
+            let loopStmt = compileQuery queryExpr gen model (fun expr -> assignStmt (toStr expr)) 
             block [varDeclStmt; loopStmt] :> _

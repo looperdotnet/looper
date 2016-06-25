@@ -26,14 +26,14 @@ let parseStmtf fmt = Printf.ksprintf parseStmt fmt
 let block (stmts : seq<StatementSyntax>) =
     SyntaxFactory.Block(stmts)
 
-let parseFor (identifier : string) : ForStatementSyntax = 
-    parseStmtf "for (int __i__ = 0; __i__ < %s.Length; __i__++);" identifier
+let parseFor (index : string) (source : string) : ForStatementSyntax = 
+    parseStmtf "for (int %s = 0; %s < %s.Length; %s++);" index index source index
 
 let parseForeach (item : string) (source : string) : ForEachStatementSyntax =
-    parseStmtf "foreach(var %s in %s);" item source
+    parseStmtf "foreach (var %s in %s);" item source
     
-let parseIndexer (identifier : string) : ExpressionSyntax =
-    parseExprf "%s[__i__]" identifier
+let parseIndexer (identifier : string) (index : string) : ExpressionSyntax =
+    parseExprf "%s[%s]" identifier index
 
 let throwNotImplemented : ThrowStatementSyntax =
     parseStmt "throw new System.NotImplementedException();" 
