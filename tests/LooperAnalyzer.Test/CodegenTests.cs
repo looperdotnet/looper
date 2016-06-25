@@ -38,9 +38,20 @@ namespace LooperAnalyzer.Test
             await VerifyCodeGen<int>(template, emptyInits, 
                 "new [] { 1, 2, 3 }.Sum()");
 
-        //[Theory(DisplayName = "Inline Range > Select > Sum"), MemberData(nameof(Templates))]
-        //public async Task InlineRangeSelectSum(CodeGenTemplate template) => 
-        //    await VerifyCodeGen<int>(template, emptyInits, 
-        //        "Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
+        [Theory(DisplayName = "Simple array > Select > Sum"), MemberData(nameof(Templates))]
+        public async Task SimpleArraySelectSum(CodeGenTemplate template) =>
+            await VerifyCodeGen<int>(template,
+                inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+                linqExpr: "xs.Select(x => x + 1).Sum()");
+
+        [Theory(DisplayName = "Inline array > Select > Sum"), MemberData(nameof(Templates))]
+        public async Task InlineArraySelectSum(CodeGenTemplate template) =>
+            await VerifyCodeGen<int>(template, emptyInits,
+                linqExpr: "new [] { 1, 2, 3 }.Select(x => x + 1).Sum()");
+
+        [Theory(DisplayName = "Inline Range > Select > Sum"), MemberData(nameof(Templates))]
+        public async Task InlineRangeSelectSum(CodeGenTemplate template) =>
+            await VerifyCodeGen<int>(template, emptyInits,
+                "Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
     }
 }

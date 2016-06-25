@@ -18,6 +18,10 @@
             let forStmt = parseFor identifier
             let stmt = k (parseIndexer identifier)
             forStmt.WithStatement(block [stmt]) :> _
+        | SourceIdentifierName (_, identifier) ->
+            let foreachStmt = parseForeach "__item__" identifier.Identifier.ValueText
+            let stmt = k (parseExpr "__item__")
+            foreachStmt.WithStatement(block [stmt]) :> _
         | Select (Lambda (param, Expression body), query) ->
             let identifier = param.Identifier.ValueText
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
