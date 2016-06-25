@@ -1,13 +1,15 @@
-strategy: min
-
 source https://www.nuget.org/api/v2/
 
-nuget FAKE
-nuget NuGet.CommandLine
-nuget Microsoft.CodeAnalysis 1.2.2
-nuget Microsoft.CodeAnalysis.CSharp.Scripting 1.2.2
-nuget NuGet.CommandLine 2.8.5 framework: portable45-net45+win8
-nuget FSharp.Core
-nuget Xunit
-nuget Xunit.Runner.Console
-nuget Xunit.Runner.VisualStudio version_in_path: true
+nuget Microsoft.CodeAnalysis
+nuget FSharp.Core framework: portable-net45+netcore45
+
+group Build
+	source https://www.nuget.org/api/v2/
+	nuget FAKE
+
+group Tests
+	source https://www.nuget.org/api/v2/
+	nuget Microsoft.CodeAnalysis.CSharp.Scripting
+	nuget Xunit
+	nuget Xunit.Runner.Console
+	nuget Xunit.Runner.VisualStudio version_in_path: true

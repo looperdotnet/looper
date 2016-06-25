@@ -1,5 +1,7 @@
 Microsoft.CodeAnalysis
-Microsoft.CodeAnalysis.CSharp.Scripting
-NuGet.CommandLine
-Xunit
-Xunit.Runner.VisualStudio
+FSharp.Core
+
+group Tests
+	Microsoft.CodeAnalysis.CSharp.Scripting
+	Xunit
+	Xunit.Runner.VisualStudio
