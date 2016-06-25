@@ -27,6 +27,13 @@
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
                                 k body] :> StatementSyntax
             compileQuery query model k
+        | Where (Lambda (param, Expression body), query) ->
+            let identifier = param.Identifier.ValueText
+            let ifStmt (predicate : ExpressionSyntax) (body : StatementSyntax) = 
+                parseStmtf "if (%s) { %s }" (toStr predicate) (toStr body)
+            let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
+                                ifStmt body (k expr)] :> StatementSyntax 
+            compileQuery query model k
         | Sum query -> 
             let varDeclStmt = parseStmt "var __sum__ = 0;"
             let assignStmt value = parseStmtf "__sum__ += %s;" value
