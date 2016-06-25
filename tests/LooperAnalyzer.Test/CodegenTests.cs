@@ -59,5 +59,11 @@ namespace LooperAnalyzer.Test
             await VerifyCodeGen<int>(template,
                 inits: new[] { "var xs = new [] { 1, 2, 3 };" },
                 linqExpr: "xs.Where(x => x % 2 == 0).Sum()");
+
+        [Theory(DisplayName = "SelectMany"), MemberData(nameof(Templates))]
+        public async Task SelectMany(CodeGenTemplate template) =>
+            await VerifyCodeGen<int>(template,
+                inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+                linqExpr: "xs.SelectMany(n => Enumerable.Range(1, n).Select(x => x + 1)).Sum()");
     }
 }
