@@ -54,6 +54,12 @@ namespace LooperAnalyzer.Test
             await VerifyCodeGen<int>(template, emptyInits,
                 "Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
 
+        [Theory(DisplayName = "Where"), MemberData(nameof(Templates))]
+        public async Task Where(CodeGenTemplate template) =>
+            await VerifyCodeGen<int>(template,
+                inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+                linqExpr: "xs.Where(x => x % 2 == 0).Sum()");
+
         [Fact(DisplayName = "For all input.Select.Sum")]
         public void ForAllSelectSum() => VerifyCodeGenForAll<int[], int>("input.Select(x => x + 1).Sum()");
     }
