@@ -14,94 +14,42 @@ using FsCheck;
 
 namespace LooperAnalyzer.Test
 {
-    public class CodeGenFixture : IDisposable
+    public class Globals<TInput>
     {
-        public Script DefaultScript { get; private set; }
+        public TInput Input { get; set; }
 
-        public CodeGenFixture()
-        {
-            DefaultScript = CSharpScript.Create(
-                "",
-                ScriptOptions.Default
-                .WithReferences(typeof(object).Assembly)
-                .WithReferences(typeof(Enumerable).Assembly));
-        }
-
-        public void Dispose()
-        {
-
-        }
+        public static Globals<object> Empty { get; } = new Globals<object>();
     }
 
-    public class CodeGenTemplate : IXunitSerializable
+    public abstract class CodeGenTestsBase
     {
-        public string Name { get; set; }
-        public string ResultExpression { get; set; }
-        public string Template { get; set; }
-        public string ResultType { get; set; } = "object";
-
-        public override string ToString() => Name;
-
-        public string Format(string[] inits, string expr) => 
-            string.Format(Template, ResultType, string.Join(Environment.NewLine, inits), expr);
-
-        public void Deserialize(IXunitSerializationInfo info)
-        {
-            Name = info.GetValue<string>(nameof(Name));
-            ResultExpression = info.GetValue<string>(nameof(ResultExpression));
-            Template = info.GetValue<string>(nameof(Template));
-            ResultType = info.GetValue<string>(nameof(ResultType));
-        }
-
-        public void Serialize(IXunitSerializationInfo info)
-        {
-            info.AddValue(nameof(Name), Name);
-            info.AddValue(nameof(ResultExpression), ResultExpression);
-            info.AddValue(nameof(Template), Template);
-            info.AddValue(nameof(ResultType), ResultType);
-        }
-
-        public static CodeGenTemplate[] Templates =
-            new[]
-            {
-                new CodeGenTemplate
-                {
-                    Name = "Local declaration in method body",
-                    ResultExpression = "Test()",
-                    Template =
-@"using System.Linq;
-{0} Test() {{
-    {1}
-    var test = {2};
-    return test;
-}}"
-                },
-            };
-    }
-
-    public abstract class CodeGenTestsBase : IClassFixture<CodeGenFixture>
-    {
-        protected readonly CodeGenFixture fixture;
-        protected readonly string[] emptyInits = new string[0];
         private readonly ITestOutputHelper output;
 
-        public static readonly CodeGenTemplate[][] Templates = CodeGenTemplate.Templates.Select(t => new[] { t }).ToArray();
-
-        public CodeGenTestsBase(CodeGenFixture fixture, ITestOutputHelper output)
+        protected readonly string[] emptyInits = Array.Empty<string>();
+        public CodeGenTestsBase(ITestOutputHelper output)
         {
-            this.fixture = fixture;
             this.output = output;
         }
 
-        protected async Task VerifyCodeGen<T>(string code, string resultExpr)
+        private Script GetDefaultScript<TInput>(string code) =>
+            CSharpScript.Create(
+                code,
+                ScriptOptions.Default
+                    .WithReferences(typeof(object).Assembly)
+                    .WithReferences(typeof(Enumerable).Assembly),
+                typeof(Globals<TInput>));
+
+
+        private Tuple<ScriptRunner<TOutput>, ScriptRunner<TOutput>> GetScriptRunners<TInput, TOutput>(string code, string testf)
         {
-            var script = fixture.DefaultScript.ContinueWith(code);
+            var script = GetDefaultScript<TInput>(code);
+
             var compilation = script.GetCompilation();
             var tree = compilation.SyntaxTrees.Single();
             var model = compilation.GetSemanticModel(tree);
             var checker = new SymbolChecker(model);
-            var root = tree.GetRoot();
 
+            var root = tree.GetRoot();
             var stmtQuery = root
                 .DescendantNodes()
                 .OfType<LocalDeclarationStatementSyntax>()
@@ -126,90 +74,59 @@ namespace LooperAnalyzer.Test
             Assert.False(root.IsEquivalentTo(newRoot),
                 "Transformed syntax should not be equivalent to original.");
 
-            var expected = await script
-                .ContinueWith<T>(resultExpr)
-                .RunProtectedAsync();
+            var expectedF = script
+                .ContinueWith<TOutput>(testf)
+                .CreateDelegate();
 
-            var actual = await script
-                .ContinueWith(codegen)
-                .ContinueWith<T>(resultExpr)
-                .RunProtectedAsync();
+            var actualF = script.ContinueWith(codegen)
+                .ContinueWith<TOutput>(testf)
+                .CreateDelegate();
 
+            return Tuple.Create(expectedF, actualF);
+        }
+
+
+        protected async Task VerifyCodeGen<TOutput>(string[] inits, string linqExpr)
+        {
+            var init = string.Join(";\r\n", inits);
+
+            var testExpr = "Test()";
+            var code = string.Format(
+@"using System.Linq;
+{0} Test() {{
+    {1}
+    var test = {2};
+    return test;
+}}", typeof(TOutput).FullName, init, linqExpr);
+
+            var tup = GetScriptRunners<object, TOutput>(code, testExpr);
+
+            var expected = await tup.Item1.RunProtectedAsync(Globals<object>.Empty);
+            var actual = await tup.Item2.RunProtectedAsync(Globals<object>.Empty);
             Assert.Equal(expected, actual);
         }
 
-        protected void VerifyCodeGenForAll<TInput, TOutput>(string linqExpr)
+        protected void VerifyCodeGenForAll<TInput, TOutput>(Func<string, string> linqExprF)
         {
-            var code =
+            // TODO : remove temp assignment
+            var testExpr = "Test(Input)";
+            var code = string.Format(
 @"using System.Linq;
 {0} Test({1} temp) {{
     var input = temp;
     var test = {2};
     return test;
-}}";
+}}", typeof(TOutput).FullName, typeof(TInput).FullName, linqExprF("input"));
 
-            var testExpr = "Test(INPUT)";
-
-            code = string.Format(code, typeof(TOutput).FullName, typeof(TInput).FullName, linqExpr);
-
-            var script = CSharpScript.Create(code,
-                ScriptOptions.Default
-                    .WithReferences(typeof(object).Assembly)
-                    .WithReferences(typeof(Enumerable).Assembly),
-                typeof(Globals<TInput>));
-
-            var compilation = script.GetCompilation();
-            var tree = compilation.SyntaxTrees.Single();
-            var model = compilation.GetSemanticModel(tree);
-            var checker = new SymbolChecker(model);
-            var root = tree.GetRoot();
-
-            var stmtQuery = root
-                .DescendantNodes()
-                .OfType<LocalDeclarationStatementSyntax>()
-                .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, checker)?.Value })
-                .SingleOrDefault(e => e.LooperStmt != null);
-
-            output.WriteLine("original\r\n{0}", root.ToFullString());
-
-            Assert.False(stmtQuery == null, 
-                $"{nameof(QueryTransformer)} could not find an appropriate expression.");
-
-            var newRoot = CodeTransformer.markWithDirective(model, root, stmtQuery.Node);
-
-            var codegen = // TODO
-                $"#define {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
-                $"#if {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
-                newRoot.ToFullString() + Environment.NewLine +
-                "#endif";
-            
-            output.WriteLine("codegen\r\n{0}", codegen);
-
-            Assert.False(root.IsEquivalentTo(newRoot),
-                "Transformed syntax should not be equivalent to original.");
-
-            var expectedF = script.ContinueWith<TOutput>(testExpr).CreateDelegate();
-
-            var actualF = script.ContinueWith(codegen).ContinueWith<TOutput>(testExpr).CreateDelegate();
+            var tup = GetScriptRunners<TInput, TOutput>(code, testExpr);
 
             Prop.ForAll<TInput>(input => {
-                var globals = new Globals<TInput> { INPUT = input };
-                var expected = expectedF.RunProtected(globals);
-                var actual = actualF.RunProtected(globals);
+                var globals = new Globals<TInput> { Input = input };
+                var expected = tup.Item1.RunProtected(globals);
+                var actual = tup.Item2.RunProtected(globals);
                 Assert.Equal(expected, actual);
             }).QuickCheckThrowOnFailure();
         }
-
-        protected async Task VerifyCodeGen<T>(CodeGenTemplate template, string[] inits, string linqExpr)
-        {
-            template.ResultType = typeof(T).FullName;
-            var code = template.Format(inits, linqExpr);
-            await VerifyCodeGen<T>(code, template.ResultExpression);
-        }
     }
 
-    public class Globals<TInput>
-    {
-        public TInput INPUT { get; set; }
-    }
 }

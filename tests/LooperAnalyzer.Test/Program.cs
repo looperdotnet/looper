@@ -9,9 +9,8 @@ namespace LooperAnalyzer.Test.Scripts
     {
         public static void Main(string[] args)
         {
-            var fixture = new CodeGenFixture();
-            var tests = new CodeGenTests(fixture, new ConsoleOutputHelper());
-            Task.Run(() => tests.Where(CodeGenTemplate.Templates[0])).Wait();
+            var tests = new CodeGenTests(new ConsoleOutputHelper());
+            Task.Run(() => tests.Where()).Wait();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper

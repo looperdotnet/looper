@@ -28,6 +28,17 @@ namespace LooperAnalyzer.Test.Helpers
             }
         }
 
+        public static async Task<ValueOrException<T>> RunProtectedAsync<T>(this ScriptRunner<T> runner, object globals)
+        {
+            try {
+                var result = await runner(globals);
+                return new ValueOrException<T>(result);
+            }
+            catch (Exception e) when (e.StackTrace.Contains("Submission")) {
+                return new ValueOrException<T>(e);
+            }
+        }
+
     }
 
     struct ValueOrException<T> : IEquatable<ValueOrException<T>>

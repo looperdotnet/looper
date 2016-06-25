@@ -7,60 +7,62 @@ namespace LooperAnalyzer.Test
 {
     public class CodeGenTests : CodeGenTestsBase
     {
-        public CodeGenTests(CodeGenFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
+        public CodeGenTests(ITestOutputHelper output) : base(output) { }
 
-        [Theory(DisplayName = "Empty array > Sum"), MemberData(nameof(Templates))]
-        public async Task EmptyArraySum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template,
+        [Fact(DisplayName = "Empty array > Sum")]
+        public async Task EmptyArraySum() =>
+            await VerifyCodeGen<int>(
                 inits: new[] { "var xs = new int [0];" },
                 linqExpr: "xs.Sum()");
 
-        [Theory(DisplayName = "Empty sequence > Sum"), MemberData(nameof(Templates))]
-        public async Task EmptySequenceSum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template,
+        [Fact(DisplayName = "Empty sequence > Sum")]
+        public async Task EmptySequenceSum() =>
+            await VerifyCodeGen<int>(
                 inits: new[] { "System.Collections.Generic.IEnumerable<int> xs = new int [0];" },
                 linqExpr: "xs.Sum()");
 
-        [Theory(DisplayName = "Simple array > Sum"), MemberData(nameof(Templates))]
-        public async Task SimpleArraySum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template,
+        [Fact(DisplayName = "Simple array > Sum")]
+        public async Task SimpleArraySum() =>
+            await VerifyCodeGen<int>(
                 inits: new[] { "var xs = new [] { 1, 2, 3 };" },
                 linqExpr: "xs.Sum()");
 
-        [Theory(DisplayName = "Simple Range > Sum"), MemberData(nameof(Templates))]
-        public async Task SimpleRangeSum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template,
+        [Fact(DisplayName = "Simple Range > Sum")]
+        public async Task SimpleRangeSum() =>
+            await VerifyCodeGen<int>(
                 inits: new[] { "var xs = Enumerable.Range(1, 10);" },
                 linqExpr: "xs.Sum()");
 
-        [Theory(DisplayName = "Inline array > Sum"), MemberData(nameof(Templates))]
-        public async Task InlineArraySum(CodeGenTemplate template) => 
-            await VerifyCodeGen<int>(template, emptyInits, 
-                "new [] { 1, 2, 3 }.Sum()");
+        [Fact(DisplayName = "Inline array > Sum")]
+        public async Task InlineArraySum() => 
+            await VerifyCodeGen<int>(inits: emptyInits,
+                linqExpr: "new [] { 1, 2, 3 }.Sum()");
 
-        [Theory(DisplayName = "Simple array > Select > Sum"), MemberData(nameof(Templates))]
-        public async Task SimpleArraySelectSum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template,
+        [Fact(DisplayName = "Simple array > Select > Sum")]
+        public async Task SimpleArraySelectSum() =>
+            await VerifyCodeGen<int>(
                 inits: new[] { "var xs = new [] { 1, 2, 3 };" },
                 linqExpr: "xs.Select(x => x + 1).Sum()");
 
-        [Theory(DisplayName = "Inline array > Select > Sum"), MemberData(nameof(Templates))]
-        public async Task InlineArraySelectSum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template, emptyInits,
+        [Fact(DisplayName = "Inline array > Select > Sum")]
+        public async Task InlineArraySelectSum() =>
+            await VerifyCodeGen<int>(emptyInits,
                 linqExpr: "new [] { 1, 2, 3 }.Select(x => x + 1).Sum()");
 
-        [Theory(DisplayName = "Inline Range > Select > Sum"), MemberData(nameof(Templates))]
-        public async Task InlineRangeSelectSum(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template, emptyInits,
+        [Fact(DisplayName = "Inline Range > Select > Sum")]
+        public async Task InlineRangeSelectSum() =>
+            await VerifyCodeGen<int>(emptyInits,
                 "Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
 
-        [Theory(DisplayName = "Where"), MemberData(nameof(Templates))]
-        public async Task Where(CodeGenTemplate template) =>
-            await VerifyCodeGen<int>(template,
+        [Fact(DisplayName = "Where")]
+        public async Task Where() =>
+            await VerifyCodeGen<int>(
                 inits: new[] { "var xs = new [] { 1, 2, 3 };" },
                 linqExpr: "xs.Where(x => x % 2 == 0).Sum()");
 
         [Fact(DisplayName = "For all input.Select.Sum")]
-        public void ForAllSelectSum() => VerifyCodeGenForAll<int[], int>("input.Select(x => x + 1).Sum()");
+        public void ForAllSelectSum() => 
+            VerifyCodeGenForAll<int[], int>(input => 
+                $"{input}.Select(x => x + 1).Sum()");
     }
 }
