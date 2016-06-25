@@ -4,13 +4,24 @@ using System.Threading.Tasks;
 
 namespace LooperAnalyzer.Test.Helpers
 {
-    static class ScriptResultExtensions
+    static class ScriptRunningExtensions
     {
         public static async Task<ValueOrException<T>> RunProtectedAsync<T>(this Script<T> script)
         {
             try {
                 var result = await script.RunAsync();
                 return new ValueOrException<T>(result.ReturnValue);
+            }
+            catch (Exception e) when (e.StackTrace.Contains("Submission")) {
+                return new ValueOrException<T>(e);
+            }
+        }
+
+        public static ValueOrException<T> RunProtected<T>(this ScriptRunner<T> runner, object globals)
+        {
+            try {
+                var result = runner(globals).Result;
+                return new ValueOrException<T>(result);
             }
             catch (Exception e) when (e.StackTrace.Contains("Submission")) {
                 return new ValueOrException<T>(e);
