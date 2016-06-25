@@ -5,3 +5,4 @@ group Tests
 	Microsoft.CodeAnalysis.CSharp.Scripting
 	Xunit
 	Xunit.Runner.VisualStudio
+	FsCheck

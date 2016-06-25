@@ -53,5 +53,8 @@ namespace LooperAnalyzer.Test
         public async Task InlineRangeSelectSum(CodeGenTemplate template) =>
             await VerifyCodeGen<int>(template, emptyInits,
                 "Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
+
+        [Fact(DisplayName = "For all input.Select.Sum")]
+        public void ForAllSelectSum() => VerifyCodeGenForAll<int[], int>("input.Select(x => x + 1).Sum()");
     }
 }

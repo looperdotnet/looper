@@ -10,6 +10,7 @@ group Build
 group Tests
 	source https://www.nuget.org/api/v2/
 	nuget Microsoft.CodeAnalysis.CSharp.Scripting
+	nuget FsCheck
 	nuget Xunit
 	nuget Xunit.Runner.Console
 	nuget Xunit.Runner.VisualStudio version_in_path: true

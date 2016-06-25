@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace LooperAnalyzer.Test.Scripts
 {
@@ -11,7 +10,7 @@ namespace LooperAnalyzer.Test.Scripts
         {
             var fixture = new CodeGenFixture();
             var tests = new CodeGenTests(fixture, new ConsoleOutputHelper());
-            Task.Run(() => tests.SimpleArraySum(CodeGenTemplate.Templates[0])).Wait();
+            Task.Run(() => tests.ForAllSelectSum()).Wait();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper

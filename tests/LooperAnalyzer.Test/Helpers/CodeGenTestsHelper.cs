@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Abstractions;
 using Microsoft.CodeAnalysis.CSharp;
 using LooperAnalyzer.Test.Helpers;
+using FsCheck;
 
 namespace LooperAnalyzer.Test
 {
@@ -109,7 +110,7 @@ namespace LooperAnalyzer.Test
 
             output.WriteLine("original\r\n{0}", root.ToFullString());
 
-            Assert.False(stmtQuery == null, 
+            Assert.False(stmtQuery == null,
                 $"{nameof(QueryTransformer)} could not find an appropriate expression.");
 
             var newRoot = CodeTransformer.markWithDirective(model, root, stmtQuery.Node);
@@ -119,7 +120,7 @@ namespace LooperAnalyzer.Test
                 $"#if {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
                 newRoot.ToFullString() + Environment.NewLine +
                 "#endif";
-            
+
             output.WriteLine("codegen\r\n{0}", codegen);
 
             Assert.False(root.IsEquivalentTo(newRoot),
@@ -137,11 +138,78 @@ namespace LooperAnalyzer.Test
             Assert.Equal(expected, actual);
         }
 
+        protected void VerifyCodeGenForAll<TInput, TOutput>(string linqExpr)
+        {
+            var code =
+@"using System.Linq;
+{0} Test({1} temp) {{
+    var input = temp;
+    var test = {2};
+    return test;
+}}";
+
+            var testExpr = "Test(INPUT)";
+
+            code = string.Format(code, typeof(TOutput).FullName, typeof(TInput).FullName, linqExpr);
+
+            var script = CSharpScript.Create(code,
+                ScriptOptions.Default
+                    .WithReferences(typeof(object).Assembly)
+                    .WithReferences(typeof(Enumerable).Assembly),
+                typeof(Globals<TInput>));
+
+            var compilation = script.GetCompilation();
+            var tree = compilation.SyntaxTrees.Single();
+            var model = compilation.GetSemanticModel(tree);
+            var checker = new SymbolChecker(model);
+            var root = tree.GetRoot();
+
+            var stmtQuery = root
+                .DescendantNodes()
+                .OfType<LocalDeclarationStatementSyntax>()
+                .Select(e => new { Node = e, LooperStmt = QueryTransformer.toStmtQueryExpr(e, checker)?.Value })
+                .SingleOrDefault(e => e.LooperStmt != null);
+
+            output.WriteLine("original\r\n{0}", root.ToFullString());
+
+            Assert.False(stmtQuery == null, 
+                $"{nameof(QueryTransformer)} could not find an appropriate expression.");
+
+            var newRoot = CodeTransformer.markWithDirective(model, root, stmtQuery.Node);
+
+            var codegen = // TODO
+                $"#define {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
+                $"#if {TriviaUtils.ifDefIdentifier}" + Environment.NewLine +
+                newRoot.ToFullString() + Environment.NewLine +
+                "#endif";
+            
+            output.WriteLine("codegen\r\n{0}", codegen);
+
+            Assert.False(root.IsEquivalentTo(newRoot),
+                "Transformed syntax should not be equivalent to original.");
+
+            var expectedF = script.ContinueWith<TOutput>(testExpr).CreateDelegate();
+
+            var actualF = script.ContinueWith(codegen).ContinueWith<TOutput>(testExpr).CreateDelegate();
+
+            Prop.ForAll<TInput>(input => {
+                var globals = new Globals<TInput> { INPUT = input };
+                var expected = expectedF.RunProtected(globals);
+                var actual = actualF.RunProtected(globals);
+                Assert.Equal(expected, actual);
+            }).QuickCheckThrowOnFailure();
+        }
+
         protected async Task VerifyCodeGen<T>(CodeGenTemplate template, string[] inits, string linqExpr)
         {
             template.ResultType = typeof(T).FullName;
             var code = template.Format(inits, linqExpr);
             await VerifyCodeGen<T>(code, template.ResultExpression);
         }
+    }
+
+    public class Globals<TInput>
+    {
+        public TInput INPUT { get; set; }
     }
 }
