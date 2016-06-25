@@ -64,5 +64,11 @@ namespace LooperAnalyzer.Test
         public void ForAllSelectSum() => 
             VerifyCodeGenForAll<int[], int>(input => 
                 $"{input}.Select(x => x + 1).Sum()");
+
+        [Fact(DisplayName = "SelectMany")]
+        public async Task SelectMany() =>
+            await VerifyCodeGen<int>(
+             inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+             linqExpr: "xs.SelectMany(n => Enumerable.Range(1, n).Select(x => x + 1)).Sum()");
     }
 }
