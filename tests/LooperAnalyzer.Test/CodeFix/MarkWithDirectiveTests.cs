@@ -42,7 +42,7 @@ namespace LooperAnalyzer.Test
                     }
                 }
                 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 34));
+            VerifyCSharpDiagnostic(test, Expected(7, 25));
         }
 
         [Fact(DisplayName = "Proper formatting")]
