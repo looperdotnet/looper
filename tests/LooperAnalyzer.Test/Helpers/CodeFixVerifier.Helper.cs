@@ -62,7 +62,8 @@ namespace TestHelper
         /// <returns>The compiler diagnostics that were found in the code</returns>
         private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
         {
-            return document.GetSemanticModelAsync().Result.GetDiagnostics();
+            //return document.GetSemanticModelAsync().Result.GetDiagnostics();
+            return document.GetSemanticModelAsync().Result.Compilation.GetDiagnostics();
         }
 
         /// <summary>

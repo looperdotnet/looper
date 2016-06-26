@@ -4,13 +4,14 @@ module Looper.Core.TriviaUtils
 open Microsoft.CodeAnalysis
 open Microsoft.CodeAnalysis.CSharp
 open Microsoft.CodeAnalysis.CSharp.Syntax
+open System
 
 let ifDefIdentifier = "LOOPER"
 let private markerCommentText = "// looper"
 
 let private markerComment = SyntaxFactory.Comment(markerCommentText)
 
-let private ifDirective =
+let ifDirective =
     SyntaxFactory.Trivia(
       SyntaxFactory.IfDirectiveTrivia(
         SyntaxFactory.PrefixUnaryExpression(
@@ -18,11 +19,11 @@ let private ifDirective =
             SyntaxFactory.IdentifierName(ifDefIdentifier)),
             true, true, true))
 
-let private elseDirective = 
+let elseDirective = 
     SyntaxFactory.Trivia(SyntaxFactory.ElseDirectiveTrivia(true, false))
 
-let private endDirective =
-    SyntaxFactory.Trivia(SyntaxFactory.EndIfDirectiveTrivia(true))
+let endDirective =
+    SyntaxFactory.Trivia(SyntaxFactory.EndIfDirectiveTrivia(false))
 
 [<AutoOpen>] 
 module TriviaPatterns =
@@ -51,24 +52,28 @@ module TriviaPatterns =
         |> Seq.toList
         |> isMarked
 
-type SyntaxNode with
+type StatementSyntax with
     
+    member node.AppendLeadingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
+        let trivia = node.GetLeadingTrivia().AddRange(trivia)
+        node.WithLeadingTrivia(trivia)
+
+    member node.PrependLeadingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
+        let trivia = node.GetLeadingTrivia().InsertRange(0, trivia)
+        node.WithLeadingTrivia(trivia)
+
+    member node.AppendTrailingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
+        let trivia = node.GetTrailingTrivia().AddRange(trivia)
+        node.WithTrailingTrivia(trivia)
+
+    member node.PrependTrailingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
+        let trivia = node.GetTrailingTrivia().InsertRange(0, trivia)
+        node.WithTrailingTrivia(trivia)
+
     member node.IsMarkedWithOptimizationTrivia = 
         match node with 
         | MarkedForOptimization _ -> true 
         | _ -> false
-
-    member node.MakeLeadingIfDirective () =
-        if node.GetLeadingTrivia() |> Seq.forall(fun t -> t.IsKind(SyntaxKind.SingleLineCommentTrivia)) then
-            SyntaxFactory.TriviaList().Add(ifDirective).Add(SyntaxFactory.ElasticLineFeed).AddRange(node.GetLeadingTrivia())
-        else
-            node.GetLeadingTrivia().Add(ifDirective).Add(SyntaxFactory.ElasticCarriageReturnLineFeed)
-
-    member node.MakeLeadingElseDirective() =
-        SyntaxFactory.TriviaList(elseDirective, SyntaxFactory.ElasticLineFeed)
-
-    member node.MakeTrailingEndDirective() =
-        SyntaxFactory.TriviaList(endDirective).AddRange(node.GetTrailingTrivia())
 
     member node.MakeLeadingMarkComment() =
         let leading = node.GetLeadingTrivia()

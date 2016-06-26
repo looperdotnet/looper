@@ -14,26 +14,29 @@
         block, block.ReplaceNode(stmt, newStmt)
 
     let private markStatementWithIfDirective(stmt : StatementSyntax, stmts: SyntaxList<StatementSyntax>) =
-        let block   = stmt.FirstAncestorOrSelf<BlockSyntax>() // TODO
-        let ifDef   = stmt.MakeLeadingIfDirective()
-        let elseDef = stmt.MakeLeadingElseDirective()
-        let endDef  = stmt.MakeTrailingEndDirective()
-        let ifStmt  = stmt.WithLeadingTrivia(ifDef) 
+        let block = stmt.FirstAncestorOrSelf<BlockSyntax>() // TODO
+        
+        let eoln = SyntaxFactory.Whitespace(Environment.NewLine)
+
+        let ifStmt = 
+            stmt.AppendLeadingTrivia(ifDirective, eoln)
+                .AppendTrailingTrivia(eoln)
 
         let stmts = 
-            seq { 
-                yield ifStmt
-                let first = stmts.First().WithLeadingTrivia(elseDef)
-                let stmts = stmts.Replace(stmts.First(), first)
-                let last = 
-                    stmts.Last().WithTrailingTrivia(
-                        SyntaxTriviaList.
-                            Create(SyntaxFactory.ElasticCarriageReturnLineFeed).
-                            AddRange(endDef))
-                yield! stmts.Replace(stmts.Last(), last) :> seq<_>
-            } |> Seq.cast<SyntaxNode>
+            let first = stmts.First().PrependLeadingTrivia(elseDirective, eoln)
+            let stmts = stmts.Replace(stmts.First(), first)
+            let last = stmts.Last().AppendTrailingTrivia(eoln, endDirective, eoln)
+            stmts.Replace(stmts.Last(), last) :> seq<_>
 
-        block, block.ReplaceNode(stmt, stmts)
+        let disabled =
+            stmts 
+            |> Seq.map (fun s -> s.ToFullString())
+            |> String.concat ""
+            |> SyntaxFactory.DisabledText
+
+        let newNode = ifStmt.AppendTrailingTrivia(disabled)
+
+        block, block.ReplaceNode(stmt, newNode)
 
 
     let getRefactoring (root : SyntaxNode, node : InvocationExpressionSyntax) =

@@ -89,12 +89,12 @@ namespace LooperAnalyzer.Test
                 }
                 ";
 
-            VerifyCSharpFix(test, fixtest, 
+            VerifyCSharpFix(test, fixtest,
                 // TODO 
                 // It seems like the code produced after applying the fix
                 // ignores the directives, resulting in errors like 'dulpicate ys', etc
                 // Temporarily ignore those errors.
-                allowNewCompilerDiagnostics : true);
+                allowNewCompilerDiagnostics : false);
         }
     }
 }
