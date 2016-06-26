@@ -10,7 +10,7 @@ namespace LooperAnalyzer.Test.Scripts
         public static void Main(string[] args)
         {
             var tests = new CodeGenTests(new ConsoleOutputHelper());
-            Task.Run(() => tests.SelectMany()).Wait();
+            tests.SelectMany().Wait();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper

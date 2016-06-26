@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TestHelper
 {
@@ -16,6 +17,8 @@ namespace TestHelper
     /// </summary>
     public abstract partial class CodeFixVerifier : DiagnosticVerifier
     {
+        public CodeFixVerifier(ITestOutputHelper output) : base(output) {  }
+
         /// <summary>
         /// Returns the codefix being tested (C#) - to be implemented in non-abstract class
         /// </summary>
@@ -117,6 +120,12 @@ namespace TestHelper
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = GetStringFromDocument(document);
+
+            output.WriteLine("Expected");
+            output.WriteLine(newSource);
+            output.WriteLine("Actual");
+            output.WriteLine(actual);
+
             Assert.Equal(newSource, actual);
         }
     }

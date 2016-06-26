@@ -10,11 +10,16 @@ using Looper.Core;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using static LooperAnalyzer.ApplicationDiagnostics;
+using Xunit.Abstractions;
 
 namespace LooperAnalyzer.Test
 {
     public class InvalidExpressionDiagnosticTests : CodeFixVerifier
     {
+        public InvalidExpressionDiagnosticTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         private DiagnosticResult Expected(int row, int col) =>
             new DiagnosticResult
             {

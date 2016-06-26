@@ -10,11 +10,16 @@ using Looper.Core;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using static LooperAnalyzer.ApplicationDiagnostics;
+using Xunit.Abstractions;
 
 namespace LooperAnalyzer.Test
 {
     public class RefactorToStatementTests : CodeFixVerifier
     {
+        public RefactorToStatementTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         protected override CodeFixProvider GetCSharpCodeFixProvider() => new RefactorToStatement();
 
         private DiagnosticResult Expected(int row, int col) =>
@@ -31,7 +36,7 @@ namespace LooperAnalyzer.Test
         public void IfStatement()
         {
             var test = @"
-                using System.Collections.Generic;
+                using System.Linq;
                 class TestClass
                 {
                     void Test() {
@@ -45,7 +50,7 @@ namespace LooperAnalyzer.Test
             VerifyCSharpDiagnostic(test, Expected(7, 28));
 
             var fixtest = @"
-                using System.Collections.Generic;
+                using System.Linq;
                 class TestClass
                 {
                     void Test() {

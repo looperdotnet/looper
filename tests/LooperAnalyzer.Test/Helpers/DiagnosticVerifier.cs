@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TestHelper
 {
@@ -14,6 +15,13 @@ namespace TestHelper
     /// </summary>
     public abstract partial class DiagnosticVerifier
     {
+        protected readonly ITestOutputHelper output;
+
+        public DiagnosticVerifier(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         #region To be implemented by Test classes
         /// <summary>
         /// Get the CSharp analyzer being tested - to be implemented in non-abstract class
