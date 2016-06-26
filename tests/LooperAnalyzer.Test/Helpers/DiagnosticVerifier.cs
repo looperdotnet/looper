@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using LooperAnalyzer;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace TestHelper
         /// </summary>
         protected virtual DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return null;
+            return new LooperDiagnosticAnalyzer();
         }
 
         /// <summary>

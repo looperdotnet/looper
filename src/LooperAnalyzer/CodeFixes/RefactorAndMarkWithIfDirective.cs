@@ -20,7 +20,7 @@ namespace LooperAnalyzer
         private const string title = "Refactor and replace with conditional optimization";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
-            ImmutableArray.Create(LooperDiagnosticAnalyzer.NeedsRefactoringDiagnosticId);
+            ImmutableArray.Create(ApplicationDiagnostics.NeedsRefactoringDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

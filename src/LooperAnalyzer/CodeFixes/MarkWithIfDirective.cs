@@ -20,7 +20,7 @@ namespace LooperAnalyzer
         private const string title = "Replace with conditional optimization";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => 
-            ImmutableArray.Create(LooperDiagnosticAnalyzer.OptimizableDiagnosticId);
+            ImmutableArray.Create(ApplicationDiagnostics.OptimizableDiagnosticId);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

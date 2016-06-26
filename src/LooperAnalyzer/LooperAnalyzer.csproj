@@ -42,6 +42,7 @@
     <Compile Include="CodeFixes\RefactorToStatement.cs" />
     <Compile Include="CodeFixes\RefactorAndMarkWithIfDirective.cs" />
     <Compile Include="CodeFixes\MarkWithIfDirective.cs" />
+    <Compile Include="DiagnosticAnalyzers\ApplicationDiagnostics.cs" />
     <Compile Include="DiagnosticAnalyzers\LooperAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
