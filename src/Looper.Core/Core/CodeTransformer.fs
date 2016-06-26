@@ -38,9 +38,9 @@
         block, block.ReplaceNode(stmt, newNode)
 
 
-    let getRefactoring (root : SyntaxNode, node : InvocationExpressionSyntax) =
+    let getRefactoring (root : SyntaxNode, model : SemanticModel, node : InvocationExpressionSyntax) =
         match node with
-        | RefactoringTransformer.CanBeRefactored root refactoring ->
+        | RefactoringTransformer.CanBeRefactored root model refactoring ->
             refactoring
         | _ ->
             failwith "Internal error, node cannot be refactored"

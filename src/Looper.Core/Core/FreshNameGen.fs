@@ -1,8 +1,12 @@
 ﻿namespace Looper.Core
 
+open System
 open Microsoft.CodeAnalysis
 open System.Collections.Generic
 
+
+module NameUtils =
+    let toCameCase (id : string) = (id.[0] |> Char.ToLower |> string) + id.[1..]
 
 type FreshNameGen (context : SyntaxNode, model : SemanticModel) =
     let map = new Dictionary<string, int>()

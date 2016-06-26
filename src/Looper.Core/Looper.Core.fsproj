@@ -48,20 +48,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Core\QueryExpr.fs" />
-    <Compile Include="Core\Patterns.fs" />
-    <Compile Include="Core\SymbolChecker.fs" />
-    <Compile Include="Core\SyntaxUtils.fs" />
-    <Compile Include="Core\TriviaUtils.fs" />
-    <Compile Include="Analysis\QueryTransformer.fs" />
-    <Compile Include="Analysis\RefactoringTransformer.fs" />
-    <Compile Include="Analysis\Analyzer.fs" />
-    <Compile Include="Compilation\FreshNameGen.fs" />
-    <Compile Include="Compilation\Compiler.fs" />
-    <Compile Include="Compilation\Formatter.fs" />
-    <Compile Include="Compilation\CodeTransformer.fs" />
     <None Include="test.fsx" />
     <None Include="paket.references" />
+    <Compile Include="Utilities\Patterns.fs" />
+    <Compile Include="Utilities\SymbolChecker.fs" />
+    <Compile Include="Utilities\SyntaxUtils.fs" />
+    <Compile Include="Utilities\TriviaUtils.fs" />
+    <Compile Include="Core\QueryExpr.fs" />
+    <Compile Include="Core\QueryTransformer.fs" />
+    <Compile Include="Core\FreshNameGen.fs" />
+    <Compile Include="Core\RefactoringTransformer.fs" />
+    <Compile Include="Core\Analyzer.fs" />
+    <Compile Include="Core\Compiler.fs" />
+    <Compile Include="Core\Formatter.fs" />
+    <Compile Include="Core\CodeTransformer.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>

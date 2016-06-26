@@ -36,32 +36,32 @@ namespace LooperAnalyzer.Test
         public void IfStatement()
         {
             var test = @"
-                using System.Linq;
-                class TestClass
-                {
-                    void Test() {
-                        var xs = new [] { 42 };
-                        if(xs.Any()) {
-                            ;
-                        }
-                    }
-                }
-                ";
-            VerifyCSharpDiagnostic(test, Expected(7, 28));
+using System.Linq;
+class TestClass
+{
+    void Test() {
+        var xs = new [] { 42 };
+        if (xs.Any()) {
+            ;
+        }
+    }
+}
+";
+            VerifyCSharpDiagnostic(test, Expected(7, 13));
 
             var fixtest = @"
-                using System.Linq;
-                class TestClass
-                {
-                    void Test() {
-                        var xs = new [] { 42 };
-                        var any = xs.Any();
-                        if(any) {
-                            ;
-                        }
-                    }
-                }
-                ";
+using System.Linq;
+class TestClass
+{
+    void Test() {
+        var xs = new [] { 42 };
+        var any = xs.Any();
+        if (any) {
+            ;
+        }
+    }
+}
+";
 
             VerifyCSharpFix(test, fixtest);
         }

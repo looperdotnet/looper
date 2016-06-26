@@ -14,8 +14,16 @@
     }
 
     /// Refactors an expr to a variable declaration.
-    let refactor (root : SyntaxNode) (expr : SyntaxNode) : Refactoring option =
-        let variable = "refactored"
+    let refactor (root : SyntaxNode) (model : SemanticModel) (expr : SyntaxNode) : Refactoring option =
+        let gen = FreshNameGen(expr, model)
+        
+        let variable = 
+            match expr with
+            | InvocationExpression(MemberAccessExpression (name, _), _) -> 
+                NameUtils.toCameCase(string name)
+            | _ -> "temp"
+            |> gen.Generate
+        
         let varDeclStmt = parseStmtf "var %s = %s;" variable (toStr expr) :> StatementSyntax
         let varExpr = parseExpr variable
 
@@ -56,4 +64,4 @@
         | LocalDeclarationStatement _ -> None
         | parent -> refactor parent
 
-    let (|CanBeRefactored|_|) root expr = refactor root expr 
+    let (|CanBeRefactored|_|) root model expr = refactor root model expr 

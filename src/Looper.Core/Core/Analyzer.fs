@@ -43,7 +43,7 @@
                     nodes.Add(Optimizable node)
             | StmtNoConsumerQuery checker _ when triviaMark.IsSome ->
                 nodes.Add(NoConsumer node)
-            | QueryExpr checker _ when Option.isSome(refactor (model.SyntaxTree.GetRoot()) node) ->
+            | QueryExpr checker _ when Option.isSome(refactor (model.SyntaxTree.GetRoot()) model node) ->
                 nodes.Add(NeedsRefactoring(node :?> InvocationExpressionSyntax))
             | _ ->
                 match triviaMark with
