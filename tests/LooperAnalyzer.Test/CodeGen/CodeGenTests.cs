@@ -54,6 +54,22 @@ namespace LooperAnalyzer.Test
             await VerifyCodeGen<int>(emptyInits,
                 "Enumerable.Range(1, 10).Select(x => x + 1).Sum()");
 
+        [Fact(DisplayName = "Delegate instead of simple lambda")]
+        public async Task Delegate() =>
+            await VerifyCodeGen<int>(
+                inits: new[] {
+                    "var xs = new [] { 1, 2, 3 };",
+                    "System.Func<int, int> f = n => n + 1;"
+                },
+                linqExpr: "xs.Select(f).Sum()");
+
+        [Fact(DisplayName = "Same lambda parameter name")]
+        public async Task NoSimpleLambda() =>
+            await VerifyCodeGen<int>(
+                inits: new[] { "var xs = new [] { 1, 2, 3, 4 };" },
+                linqExpr: "xs.Select(x => x + 1).Where(x => x % 2 == 0).Sum()");
+
+
         [Fact(DisplayName = "Where")]
         public async Task Where() =>
             await VerifyCodeGen<int>(
@@ -65,6 +81,18 @@ namespace LooperAnalyzer.Test
             await VerifyCodeGen<int>(
              inits: new[] { "var xs = new [] { 1, 2, 3 };" },
              linqExpr: "xs.SelectMany(n => Enumerable.Range(1, n).Select(x => x + 1)).Sum()");
+
+        [Fact(DisplayName = "SelectMany without nested QueryExpr")]
+        public async Task SelectManySimpleExpr() =>
+            await VerifyCodeGen<int>(
+             inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+             linqExpr: "xs.SelectMany(n => new int[] { n }).Sum()");
+
+        [Fact(DisplayName = "SelectMany QueryExpr nested in expression")]
+        public async Task SelectManyNestedQuery() =>
+            await VerifyCodeGen<int>(
+             inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+             linqExpr: "xs.SelectMany(n => Enumerable.Range(1, n).Sum() + 1).Sum()");
 
         [Fact(DisplayName = "For all input.Select.Sum")]
         public void ForAllSelectSum() => 
