@@ -54,47 +54,43 @@ namespace LooperAnalyzer.Test
         public void Formatting()
         {
             var test = @"
-                using System.Linq;
-                class TestClass
-                {
-                    int Method() 
-                    {
-                        var xs = new [] { 42 };
-                        var ys = xs.Select(x => x + 1).Sum();
-                        return ys;
-                    }
-                }
-                ";
+using System.Linq;
+class TestClass
+{
+    int Method() 
+    {
+        var xs = new [] { 42 };
+        var ys = xs.Select(x => x + 1).Sum();
+        return ys;
+    }
+}
+";
 
             var fixtest = @"
-                using System.Linq;
-                class TestClass
-                {
-                    int Method() 
-                    {
-                        var xs = new [] { 42 };
+using System.Linq;
+class TestClass
+{
+    int Method() 
+    {
+        var xs = new [] { 42 };
 #if !LOOPER
-                        var ys = xs.Select(x => x + 1).Sum();
+        var ys = xs.Select(x => x + 1).Sum();
 #else
-                        var ys = default(int);
-                        var sum = 0;
-                        for (int i = 0; i < xs.Length; i++) {
-                            var x = xs[i];
-                            sum += x + 1;
-                            ys = sum;
-                        }
+    var ys = default (int);
+    var sum = 0;
+    for (int i = 0; i < xs.Length; i++)
+    {
+        var x = xs[i];
+        sum += x + 1;
+        ys = sum;
+    }
 #endif
-                        return ys;
-                    }
-                }
-                ";
+        return ys;
+    }
+}
+";
 
-            VerifyCSharpFix(test, fixtest,
-                // TODO 
-                // It seems like the code produced after applying the fix
-                // ignores the directives, resulting in errors like 'dulpicate ys', etc
-                // Temporarily ignore those errors.
-                allowNewCompilerDiagnostics : false);
+            VerifyCSharpFix(test, fixtest);
         }
     }
 }

@@ -55,16 +55,16 @@ module TriviaPatterns =
 type StatementSyntax with
     
     member node.AppendLeadingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
-        let trivia = node.GetLeadingTrivia().AddRange(trivia)
-        node.WithLeadingTrivia(trivia)
+        let leading = node.GetLeadingTrivia().AddRange(trivia)
+        node.WithLeadingTrivia(leading)
 
     member node.PrependLeadingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
         let trivia = node.GetLeadingTrivia().InsertRange(0, trivia)
         node.WithLeadingTrivia(trivia)
 
     member node.AppendTrailingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
-        let trivia = node.GetTrailingTrivia().AddRange(trivia)
-        node.WithTrailingTrivia(trivia)
+        let trailing = node.GetTrailingTrivia().AddRange(trivia)
+        node.WithTrailingTrivia(trailing)
 
     member node.PrependTrailingTrivia([<ParamArray>]trivia : SyntaxTrivia []) =
         let trivia = node.GetTrailingTrivia().InsertRange(0, trivia)

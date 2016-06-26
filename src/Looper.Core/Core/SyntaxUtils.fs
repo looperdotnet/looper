@@ -37,3 +37,6 @@ let parseIndexer (identifier : string) (index : string) : ExpressionSyntax =
 
 let throwNotImplemented : ThrowStatementSyntax =
     parseStmt "throw new System.NotImplementedException();" 
+
+let defaultOf (typ : string) =
+    SyntaxFactory.DefaultExpression(SyntaxFactory.IdentifierName(typ))

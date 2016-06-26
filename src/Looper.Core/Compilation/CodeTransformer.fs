@@ -16,16 +16,15 @@
     let private markStatementWithIfDirective(stmt : StatementSyntax, stmts: SyntaxList<StatementSyntax>) =
         let block = stmt.FirstAncestorOrSelf<BlockSyntax>() // TODO
         
-        let eoln = SyntaxFactory.Whitespace(Environment.NewLine)
+        let eoln = SyntaxFactory.CarriageReturnLineFeed
 
         let ifStmt = 
             stmt.AppendLeadingTrivia(ifDirective, eoln)
-                .AppendTrailingTrivia(eoln)
-
+                
         let stmts = 
             let first = stmts.First().PrependLeadingTrivia(elseDirective, eoln)
             let stmts = stmts.Replace(stmts.First(), first)
-            let last = stmts.Last().AppendTrailingTrivia(eoln, endDirective, eoln)
+            let last = stmts.Last().AppendTrailingTrivia(endDirective, eoln)
             stmts.Replace(stmts.Last(), last) :> seq<_>
 
         let disabled =

@@ -56,7 +56,7 @@
         match query with
         | Assign (typeSyntax, typeSymbol, identifier, queryExpr) -> 
             let gen = FreshNameGen(typeSyntax, model)
-            let varDeclStmt = parseStmtf "var %s = default(%s);" identifier.ValueText (typeSymbol.ToDisplayString())
+            let varDeclStmt = parseStmtf "var %s = %s;" identifier.ValueText (toStr (defaultOf (typeSymbol.ToDisplayString())))
             let assignStmt value = parseStmtf "%s = %s;" identifier.ValueText value
             let loopStmt = compileQuery queryExpr gen model (fun expr -> assignStmt (toStr expr)) 
             block [varDeclStmt; loopStmt] :> _
