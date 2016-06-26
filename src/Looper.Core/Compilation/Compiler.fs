@@ -31,6 +31,11 @@
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
                                 k body] :> StatementSyntax
             compileQuery query gen model k
+        | SelectMany ((param, nestedQuery), query) ->
+            let identifier = gen.Generate param.Identifier.ValueText
+            let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
+                                compileQuery nestedQuery gen model k] :> StatementSyntax
+            compileQuery query gen model k
         | Where (Lambda (param, Expression body), query) ->
             let identifier = gen.Generate param.Identifier.ValueText
             let ifStmt (predicate : ExpressionSyntax) (body : StatementSyntax) = 
