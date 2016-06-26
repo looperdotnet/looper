@@ -50,6 +50,13 @@
             let k expr = block [assignStmt (toStr expr); k (parseExpr sum)] :> StatementSyntax
             let loopStmt = compileQuery query gen model k
             block [varDeclStmt; loopStmt] :> _
+        | Count query -> 
+            let count = gen.Generate "count"
+            let varDeclStmt = parseStmtf "var %s = 0;" count
+            let assignStmt = parseStmtf "++%s;" count
+            let k _ = block [assignStmt; k (parseExpr count)] :> StatementSyntax
+            let loopStmt = compileQuery query gen model k
+            block [varDeclStmt; loopStmt] :> _
         | _ -> throwNotImplemented :> _
 
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =

@@ -37,6 +37,8 @@
         match node with 
         | LinqInvocation checker (expr, "Sum", []) ->
             intermediateMatch expr checker |> Option.map Sum 
+        | LinqInvocation checker (expr, "Count", []) ->
+            intermediateMatch expr checker |> Option.map Count 
         | LinqInvocation checker (expr, "First", []) ->
             intermediateMatch expr checker |> Option.map First 
         | LinqInvocation checker (expr, "Any", []) ->

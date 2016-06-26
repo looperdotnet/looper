@@ -98,5 +98,11 @@ namespace LooperAnalyzer.Test
         public void ForAllSelectSum() => 
             VerifyCodeGenForAll<int[], int>(input => 
                 $"{input}.Select(x => x + 1).Sum()");
+
+        [Fact(DisplayName = "For all input.Count")]
+        public void ForAllCount() =>
+            VerifyCodeGenForAll<int[], int>(input =>
+                $"{input}.Where(x => x % 2 == 0).Count()");
+
     }
 }
