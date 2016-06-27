@@ -84,7 +84,7 @@ class TestClass
     void Test() {
         int count;
         var count0 = Enumerable.Range(1,10).Count();
-        var xs = 1 + count;
+        var xs = 1 + count0;
     }
 }
 ";
