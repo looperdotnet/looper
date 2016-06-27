@@ -81,7 +81,7 @@ class TestClass
             VerifyCSharpDiagnostic(test, Expected(7, 9));
         }
 
-        [Fact(DisplayName = "Method argument as source")]
+        [Fact(DisplayName = "Delegate as source")]
         public void Delegate()
         {
             var test = @"
