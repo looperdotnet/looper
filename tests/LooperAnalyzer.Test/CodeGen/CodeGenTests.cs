@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace LooperAnalyzer.Test
 {
-    public class CodeGenTests : CodeGenTestsBase
+    public partial class CodeGenTests : CodeGenTestsBase
     {
         public CodeGenTests(ITestOutputHelper output) : base(output) { }
 
@@ -64,11 +64,16 @@ namespace LooperAnalyzer.Test
                 linqExpr: "xs.Select(f).Sum()");
 
         [Fact(DisplayName = "Same lambda parameter name")]
-        public async Task NoSimpleLambda() =>
+        public async Task DuplicateParameter() =>
             await VerifyCodeGen<int>(
                 inits: new[] { "var xs = new [] { 1, 2, 3, 4 };" },
                 linqExpr: "xs.Select(x => x + 1).Where(x => x % 2 == 0).Sum()");
 
+        [Fact(DisplayName = "Block as lambda body")]
+        public async Task LambdaBlockBody() =>
+            await VerifyCodeGen<int>(
+                inits: new[] { "var xs = new [] { 1, 2, 3, 4 };" },
+                linqExpr: "xs.Select(x => { return x + 1; }).Sum()");
 
         [Fact(DisplayName = "Where")]
         public async Task Where() =>
@@ -93,16 +98,5 @@ namespace LooperAnalyzer.Test
             await VerifyCodeGen<int>(
              inits: new[] { "var xs = new [] { 1, 2, 3 };" },
              linqExpr: "xs.SelectMany(n => Enumerable.Range(1, n).Sum() + 1).Sum()");
-
-        [Fact(DisplayName = "For all input.Select.Sum")]
-        public void ForAllSelectSum() => 
-            VerifyCodeGenForAll<int[], int>(input => 
-                $"{input}.Select(x => x + 1).Sum()");
-
-        [Fact(DisplayName = "For all input.Count")]
-        public void ForAllCount() =>
-            VerifyCodeGenForAll<int[], int>(input =>
-                $"{input}.Where(x => x % 2 == 0).Count()");
-
     }
 }

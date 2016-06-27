@@ -81,7 +81,7 @@ class TestClass
             VerifyCSharpDiagnostic(test, Expected(7, 9));
         }
 
-        [Fact(DisplayName = "Delegate as source")]
+        [Fact(DisplayName = "Delegate as lambda")]
         public void Delegate()
         {
             var test = @"
@@ -111,6 +111,7 @@ class TestClass
     }
 }
 ";
+            VerifyCSharpDiagnostic(test, Expected(8, 9));
 
             var fixtest = @"
 using System.Linq;
@@ -138,6 +139,51 @@ class TestClass
 
             VerifyCSharpFix(test, fixtest);
         }
+
+        [Fact(DisplayName = "Lambda with Block body")]
+        public void LambdaBlock()
+        {
+            var test = @"
+using System.Linq;
+class TestClass
+{
+    int Method() 
+    {
+        var xs = new [] { 42 };
+        var ys = xs.Select(x => { var y = x + 1; return y; }).Sum();
+        return ys;
+    }
+}
+";
+
+            var fixtest = @"
+using System.Linq;
+class TestClass
+{
+    int Method() 
+    {
+        var xs = new [] { 42 };
+#if !LOOPER
+        var ys = xs.Select(x => { var y = x + 1; return y; }).Sum();
+#else
+    var ys = default (int);
+    var sum = 0;
+    for (int i = 0; i < xs.Length; i++)
+    {
+        var x = xs[i];
+        var y = x + 1;
+        sum += y;
+        ys = sum;
+    }
+#endif
+        return ys;
+    }
+}
+";
+
+            VerifyCSharpFix(test, fixtest);
+        }
+
 
         [Fact(DisplayName = "Fresh names should not collide with scoped variables")]
         public void FreshNames()
