@@ -47,9 +47,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <None Include="test.fsx" />
     <None Include="paket.references" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utilities\Patterns.fs" />
     <Compile Include="Utilities\SymbolChecker.fs" />
     <Compile Include="Utilities\SyntaxUtils.fs" />
@@ -62,6 +61,7 @@
     <Compile Include="Core\Compiler.fs" />
     <Compile Include="Core\Formatter.fs" />
     <Compile Include="Core\CodeTransformer.fs" />
+    <None Include="test.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>

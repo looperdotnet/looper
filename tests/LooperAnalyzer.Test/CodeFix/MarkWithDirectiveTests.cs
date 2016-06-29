@@ -216,9 +216,9 @@ class TestClass
     var sum = 0;
     for (int i = 0; i < xs.Length; i++)
     {
-        var x = xs[i];
-        var x2 = x + 1;
-        sum += x2 + 2;
+        var x2 = xs[i];
+        var x = x2 + 1;
+        sum += x + 2;
         ys = sum;
     }
 #endif

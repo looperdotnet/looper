@@ -30,10 +30,8 @@ let test = """
 using System;
 using System.Linq;
 void Foo () {
-    var xs = Enumerable.Range(1, 10);
-    do {
-        ;
-    }while(xs.Select(x => x + 1).Any());
+    string x = "hello";
+    var xs = Enumerable.Range(1, 10).Select(x => x + 1).Any());
 }
 """
 
@@ -44,15 +42,25 @@ let compilation = CSharpCompilation.Create("TestCompilation").AddReferences(msco
 let model = compilation.GetSemanticModel(syntax, false)
 let root = syntax.GetRoot()
 
-//root.DescendantNodes().OfType<InvocationExpressionSyntax>()
-//|> Seq.map(fun n -> model.GetSymbolInfo(n.Expression))
 
-SymbolUtils.initializeFromCompilation compilation
+let lam = root.DescendantNodes().OfType<SimpleLambdaExpressionSyntax>() |> Seq.exactlyOne
+let assign = root.DescendantNodes().OfType<LocalDeclarationStatementSyntax>() |> Seq.last
+
+let sym = 
+    model.LookupSymbols(assign.SpanStart, name = "x")
+    |> Seq.head
+
+
+let x = root.DescendantNodes().OfType<IdentifierNameSyntax>() 
+        |> Seq.where (fun i -> i.Identifier.ValueText = "x")
+        |> Seq.exactlyOne
+        |> fun i -> model.GetSymbolInfo(i).Symbol
+
+let p = root.DescendantNodes().OfType<ParameterSyntax>() 
+        |> Seq.where (fun i -> i.Identifier.ValueText = "x")
+        |> Seq.exactlyOne
 
 let expr =
     root.DescendantNodes().OfType<InvocationExpressionSyntax>()
     |> Seq.filter (fun e -> QueryTransformer.toQueryExpr e model <> None)
     |> Seq.exactlyOne
-
-let newRoot = Transformer.refactor model root expr
-newRoot.Value.ToFullString()

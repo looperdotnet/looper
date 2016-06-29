@@ -9,8 +9,8 @@ namespace LooperAnalyzer.Test.Scripts
     {
         public static void Main(string[] args)
         {
-            var tests = new CodeGenTests(new ConsoleOutputHelper());
-            tests.SelectMany().Wait();
+            var tests = new MarkWithDirectiveTests(new ConsoleOutputHelper());
+            tests.FreshNames();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper

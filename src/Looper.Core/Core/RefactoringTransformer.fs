@@ -15,7 +15,7 @@
 
     /// Refactors an expr to a variable declaration.
     let refactor (root : SyntaxNode) (model : SemanticModel) (expr : SyntaxNode) : Refactoring option =
-        let gen = FreshNameGen(expr, model)
+        let gen = FreshNameGen(model, expr.SpanStart)
         
         let variable = 
             match expr with

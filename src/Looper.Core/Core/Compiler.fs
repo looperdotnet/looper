@@ -27,7 +27,7 @@
             let stmt = k (parseExpr item)
             foreachStmt.WithStatement(block [stmt]) :> _
         | Select (Lambda (param, Expression body), query) ->
-            let identifier = gen.Generate param.Identifier.ValueText
+            let identifier, body = gen.Replace(param, body)
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
                                 k body] :> StatementSyntax
             compileQuery query gen model k
@@ -37,7 +37,7 @@
                                 compileQuery nestedQuery gen model k] :> StatementSyntax
             compileQuery query gen model k
         | Where (Lambda (param, Expression body), query) ->
-            let identifier = gen.Generate param.Identifier.ValueText
+            let identifier, body = gen.Replace(param, body)
             let ifStmt (predicate : ExpressionSyntax) (body : StatementSyntax) = 
                 parseStmtf "if (%s) { %s }" (toStr predicate) (toStr body)
             let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
@@ -62,7 +62,7 @@
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =
         match query with
         | Assign (typeSyntax, typeSymbol, identifier, queryExpr) -> 
-            let gen = FreshNameGen(typeSyntax, model)
+            let gen = FreshNameGen(model, identifier.SpanStart)
             let varDeclStmt = parseStmtf "var %s = %s;" identifier.ValueText (toStr (defaultOf (typeSymbol.ToDisplayString())))
             let assignStmt value = parseStmtf "%s = %s;" identifier.ValueText value
             let loopStmt = compileQuery queryExpr gen model (fun expr -> assignStmt (toStr expr)) 
