@@ -27,21 +27,22 @@
             let stmt = k (parseExpr item)
             foreachStmt.WithStatement(block [stmt]) :> _
         | Select (Lambda (param, Expression body), query) ->
-            let identifier, body = gen.Replace(param, body)
-            let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
-                                k body] :> StatementSyntax
+            let k expr = 
+                let identifier, body = gen.Replace(param, body)
+                block [parseStmtf "var %s = %s;" identifier (toStr expr)
+                       k body] :> StatementSyntax
             compileQuery query gen model k
         | SelectMany ((param, nestedQuery), query) ->
-            let identifier = gen.Generate param.Identifier.ValueText
-            let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
-                                compileQuery nestedQuery gen model k] :> StatementSyntax
+            let k expr = 
+                let identifier = gen.Generate param.Identifier.ValueText
+                block [parseStmtf "var %s = %s;" identifier (toStr expr)
+                       compileQuery nestedQuery gen model k] :> StatementSyntax
             compileQuery query gen model k
         | Where (Lambda (param, Expression body), query) ->
-            let identifier, body = gen.Replace(param, body)
-            let ifStmt (predicate : ExpressionSyntax) (body : StatementSyntax) = 
-                parseStmtf "if (%s) { %s }" (toStr predicate) (toStr body)
-            let k expr = block [parseStmtf "var %s = %s;" identifier (toStr expr)
-                                ifStmt body (k expr)] :> StatementSyntax 
+            let k expr = 
+                let identifier, body = gen.Replace(param, body)
+                block [parseStmtf "var %s = %s;" identifier (toStr expr)
+                       parseIf (toStr body) (toStr (k expr))] :> StatementSyntax 
             compileQuery query gen model k
         | Sum query -> 
             let sum = gen.Generate "sum"

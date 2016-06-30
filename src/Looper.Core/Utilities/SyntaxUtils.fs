@@ -31,6 +31,9 @@ let parseFor (index : string) (source : string) : ForStatementSyntax =
 
 let parseForeach (item : string) (source : string) : ForEachStatementSyntax =
     parseStmtf "foreach (var %s in %s);" item source
+
+let parseIf (predicate : string) (body : string) = 
+    parseStmtf "if (%s) { %s }" predicate body
     
 let parseIndexer (identifier : string) (index : string) : ExpressionSyntax =
     parseExprf "%s[%s]" identifier index
