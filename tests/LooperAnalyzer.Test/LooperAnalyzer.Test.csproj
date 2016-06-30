@@ -81,7 +81,7 @@
     <Compile Include="CodeFix\NoConsumerDiagnosticTests.cs" />
     <Compile Include="CodeFix\InvalidExpressionDiagnosticTests.cs" />
     <Compile Include="CodeFix\RefactorToStatementTests.cs" />
-    <Compile Include="CodeFix\MarkWithDirectiveTests.cs" />
+    <Compile Include="CodeFix\OptimizerTests.cs" />
     <Compile Include="CodeGen\FsCheckCodeGenTests.cs" />
     <Compile Include="CodeGen\CodeGenTests.cs" />
     <Compile Include="Helpers\CodeGenTestsHelper.cs" />

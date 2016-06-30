@@ -93,6 +93,12 @@ namespace LooperAnalyzer.Test
              inits: new[] { "var xs = new [] { 1, 2, 3 };" },
              linqExpr: "xs.SelectMany(n => new int[] { n }).Sum()");
 
+        [Fact(DisplayName = "SelectMany same lambda parameter name")]
+        public async Task SelectManyParamName() =>
+            await VerifyCodeGen<int>(
+             inits: new[] { "var xs = new [] { 1, 2, 3 };" },
+             linqExpr: "xs.SelectMany(x => Enumerable.Range(1, x)).Select(x => x + 1).Sum()");
+
         [Fact(DisplayName = "SelectMany QueryExpr nested in expression")]
         public async Task SelectManyNestedQuery() =>
             await VerifyCodeGen<int>(

@@ -14,9 +14,9 @@ using Xunit.Abstractions;
 
 namespace LooperAnalyzer.Test
 {
-    public class MarkWithDirectiveTests : CodeFixVerifier
+    public class OptimizerTests : CodeFixVerifier
     {
-        public MarkWithDirectiveTests(ITestOutputHelper output) : base(output)
+        public OptimizerTests(ITestOutputHelper output) : base(output)
         {
         }
 
@@ -194,7 +194,7 @@ class TestClass
 {
     void Method() 
     {
-        int x0, x1;
+        int x0, x1, sum;
         var xs = new [] { 42 };
         var ys = xs.Select(x => x + 1).Select(x => x + 2).Sum();
     }
@@ -207,19 +207,19 @@ class TestClass
 {
     void Method() 
     {
-        int x0, x1;
+        int x0, x1, sum;
         var xs = new [] { 42 };
 #if !LOOPER
         var ys = xs.Select(x => x + 1).Select(x => x + 2).Sum();
 #else
     var ys = default (int);
-    var sum = 0;
+    var sum0 = 0;
     for (int i = 0; i < xs.Length; i++)
     {
         var x2 = xs[i];
         var x = x2 + 1;
-        sum += x + 2;
-        ys = sum;
+        sum0 += x + 2;
+        ys = sum0;
     }
 #endif
     }
@@ -228,7 +228,5 @@ class TestClass
 
             VerifyCSharpFix(test, fixtest);
         }
-
-
     }
 }
