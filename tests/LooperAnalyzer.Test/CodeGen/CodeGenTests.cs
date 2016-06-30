@@ -97,7 +97,7 @@ namespace LooperAnalyzer.Test
         public async Task SelectManyParamName() =>
             await VerifyCodeGen<int>(
              inits: new[] { "var xs = new [] { 1, 2, 3 };" },
-             linqExpr: "xs.SelectMany(x => Enumerable.Range(1, x)).Select(x => x + 1).Sum()");
+             linqExpr: "xs.Select(x => x + 1).SelectMany(x => Enumerable.Range(1, x)).Sum()");
 
         [Fact(DisplayName = "SelectMany QueryExpr nested in expression")]
         public async Task SelectManyNestedQuery() =>
