@@ -23,18 +23,17 @@
                 NameUtils.toCameCase(string name)
             | _ -> "temp"
             |> gen.Generate
-        
-        let varDeclStmt = parseStmtf "var %s = %s;" variable (toStr expr) :> StatementSyntax
-        let varExpr = parseExpr variable
 
         // Traverse parents until we find an appropriate node where we can put an assignment
         let rec refactor (parent : SyntaxNode) =
             match parent with
             | WhileStatement _ -> 
                 None
-            | Assignment _
+            | ExpressionStatement(Assignment  _)
             | LocalDeclarationStatement _ 
             | IfStatement _ -> 
+                let varDeclStmt = parseStmtf "var %s = %s;" variable (toStr expr) :> StatementSyntax
+                let varExpr = parseExpr variable
                 let newParent = parent.ReplaceNode(expr, varExpr)
                 let newRoot = root.ReplaceNode(parent,
                                 [ varDeclStmt.
@@ -42,18 +41,22 @@
                                     WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed) :> SyntaxNode
                                   newParent ])
                 Some { NewRoot = newRoot; RefactoredStatement = varDeclStmt }
-            | DoStatement(cond, Block stmts) ->
-                let newCond = cond.ReplaceNode(expr, varExpr)
-                let newBlock = 
-                    stmts.Add(varDeclStmt.WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed))
-                    |> block
-                let newParent = 
-                    SyntaxFactory.
-                        DoStatement(newBlock, newCond).
-                        WithTriviaFrom(parent).
-                        NormalizeWhitespace()
-                let newRoot = root.ReplaceNode(parent, newParent)
-                Some { NewRoot = newRoot; RefactoredStatement = varDeclStmt }
+//            | DoStatement(cond, Block stmts) ->
+//                let varInitStmt = parseStmtf "var %s = %s;" variable (toStr (defaultOf ))
+//                let varAssignStmt = parseStmtf "%s = %s;" variable (toStr expr) :> StatementSyntax
+//                let varExpr = parseExpr variable
+//
+//                let newCond = cond.ReplaceNode(expr, varExpr)
+//                let newBlock = 
+//                    stmts.Add(varAssignStmt.WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed))
+//                    |> block
+//                let newParent = 
+//                    SyntaxFactory.
+//                        DoStatement(newBlock, newCond).
+//                        WithTriviaFrom(parent).
+//                        NormalizeWhitespace()
+//                let newRoot = root.ReplaceNode(parent, newParent)
+//                Some { NewRoot = newRoot; RefactoredStatement = varAssignStmt }
             | current when current = root -> 
                 None
             | _ ->

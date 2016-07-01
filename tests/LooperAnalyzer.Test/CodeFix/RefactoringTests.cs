@@ -155,7 +155,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 9));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 18));
 
             var fixtest = @"
 using System.Linq;
@@ -171,7 +171,7 @@ class TestClass
             VerifyCSharpFix(test, fixtest);
         }
 
-        [Fact(DisplayName = "Refactor expression from do-while")]
+        [Fact(DisplayName = "Refactor expression from do-while", Skip = "Not implemented")]
         public void DoStatement()
         {
             var test = @"
@@ -181,21 +181,22 @@ class TestClass
     void Test() {
         do {
             var x = 42;
-        } while(xs = 1 + Enumerable.Range(1,x).Count());
+        } while(x == 1 + Enumerable.Range(1,x).Count());
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 13));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(8, 26));
 
             var fixtest = @"
 using System.Linq;
 class TestClass
 {
     void Test() {
+        var count = default (int);
         do {
             var x = 42;
-            var count = Enumerable.Range(1, x).Count();
-        } while(xs = 1 + count);
+            count = Enumerable.Range(1, x).Count();
+        } while(x == 1 + count);
     }
 }
 ";
