@@ -39,6 +39,8 @@
         | :? IdentifierNameSyntax as node -> Some (node.Identifier.ValueText)
         | _ -> None
 
+    let (|List|) (list : SyntaxList<'T>) = Seq.toList list
+
     let (|Block|_|) (node : SyntaxNode) =
         match node with
         | :? BlockSyntax as node -> Some(node.Statements)

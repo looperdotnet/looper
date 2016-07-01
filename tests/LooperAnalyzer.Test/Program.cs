@@ -10,7 +10,7 @@ namespace LooperAnalyzer.Test.Scripts
         public static void Main(string[] args)
         {
             var tests = new OptimizerTests(new ConsoleOutputHelper());
-            tests.FreshNames();
+            tests.Formatting();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper

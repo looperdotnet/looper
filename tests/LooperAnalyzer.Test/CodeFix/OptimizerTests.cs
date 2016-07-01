@@ -124,6 +124,7 @@ class TestClass
         var ys = xs.Select(x => x + 1).Sum();
 #else
     var ys = default (int);
+{
     var sum = 0;
     for (int i = 0; i < xs.Length; i++)
     {
@@ -131,6 +132,7 @@ class TestClass
         sum += x + 1;
         ys = sum;
     }
+}
 #endif
         return ys;
     }
@@ -213,6 +215,7 @@ class TestClass
         var ys = xs.Select(x => x + 1).Select(x => x + 2).Sum();
 #else
     var ys = default (int);
+{
     var sum0 = 0;
     for (int i = 0; i < xs.Length; i++)
     {
@@ -221,6 +224,7 @@ class TestClass
         sum0 += x2 + 2;
         ys = sum0;
     }
+}
 #endif
     }
 }

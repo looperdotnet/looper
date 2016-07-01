@@ -24,7 +24,7 @@
         let stmts = 
             let first = stmts.First().PrependLeadingTrivia(elseDirective, eoln)
             let stmts = stmts.Replace(stmts.First(), first)
-            let last = stmts.Last().AppendTrailingTrivia(endDirective, eoln)
+            let last = stmts.Last().AppendTrailingTrivia(eoln, endDirective, eoln)
             stmts.Replace(stmts.Last(), last) :> seq<_>
 
         let disabled =
