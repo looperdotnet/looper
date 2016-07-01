@@ -34,7 +34,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test);
+            VerifyCSharpDiagnostic(test, OptimizeDiagnostic(6, 9));
         }
 
         [Fact(DisplayName = "QueryExprStmt assignment should not produce refactoring diagnostics")]
