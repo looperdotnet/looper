@@ -46,7 +46,7 @@
             compileQuery query gen model k
         | Sum query -> 
             let sum = gen.Generate "sum"
-            let varDeclStmt = parseStmtf "var %s = 0;" sum
+            let varDeclStmt = parseStmtf "var %s = 0;" sum // TODO one needs type info for different overloads
             let assignStmt value = parseStmtf "%s += %s;" sum value
             let k expr = block [assignStmt (toStr expr); k (parseExpr sum)] :> StatementSyntax
             let loopStmt = compileQuery query gen model k
@@ -58,6 +58,15 @@
             let k _ = block [assignStmt; k (parseExpr count)] :> StatementSyntax
             let loopStmt = compileQuery query gen model k
             block [varDeclStmt; loopStmt] :> _
+        | Any query -> 
+            let any = gen.Generate "any"
+            let varDeclStmt = parseStmtf "var %s = false;" any
+            let k _ = 
+                block [ parseStmtf "%s = true;" any
+                        k (parseExpr any)
+                        breakStmt() ] :> StatementSyntax
+            let loopStmt = compileQuery query gen model k
+            block [varDeclStmt; loopStmt] :> _
         | _ -> throwNotImplemented :> _
 
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =
@@ -66,5 +75,5 @@
             let gen = FreshNameGen(model, identifier.SpanStart)
             let varDeclStmt = parseStmtf "var %s = %s;" identifier.ValueText (toStr (defaultOf (typeSymbol.ToDisplayString())))
             let assignStmt value = parseStmtf "%s = %s;" identifier.ValueText value
-            let loopStmt = compileQuery queryExpr gen model (fun expr -> assignStmt (toStr expr)) 
+            let loopStmt = compileQuery queryExpr gen model (assignStmt << toStr) 
             block [varDeclStmt; loopStmt] :> _

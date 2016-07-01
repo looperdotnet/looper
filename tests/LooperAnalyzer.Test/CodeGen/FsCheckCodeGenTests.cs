@@ -17,5 +17,10 @@ namespace LooperAnalyzer.Test
             VerifyCodeGenForAll<int[], int>(input =>
                 $"{input}.Where(x => x % 2 == 0).Count()");
 
+        [Fact(DisplayName = "For all input.Any")]
+        public void ForAllAny() =>
+            VerifyCodeGenForAll<int[], bool>(input =>
+                $"{input}.Any()");
+
     }
 }

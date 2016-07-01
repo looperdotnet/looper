@@ -43,3 +43,5 @@ let throwNotImplemented : ThrowStatementSyntax =
 
 let defaultOf (typ : string) =
     SyntaxFactory.DefaultExpression(SyntaxFactory.IdentifierName(typ))
+
+let breakStmt () = SyntaxFactory.BreakStatement()
