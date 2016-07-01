@@ -20,15 +20,6 @@ namespace LooperAnalyzer.Test
         {
         }
 
-        private DiagnosticResult Expected(int row, int col) =>
-            new DiagnosticResult
-            {
-                Id = InvalidExpressionDiagnosticId,
-                Message = InvalidExpressionMessageFormat.ToString(),
-                Severity = DiagnosticSeverity.Warning,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", row, col) }
-            };
-
         [Fact(DisplayName = "Using ifdef with invalid declaration")]
         public void InvalidExpr()
         {
@@ -43,7 +34,7 @@ namespace LooperAnalyzer.Test
 #endif   
             }
         }";
-            VerifyCSharpDiagnostic(test, Expected(5,0));
+            VerifyCSharpDiagnostic(test, InvalidExpressionDiagnostic(5,0));
         }
     }
 }

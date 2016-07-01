@@ -22,15 +22,6 @@ namespace LooperAnalyzer.Test
 
         protected override CodeFixProvider GetCSharpCodeFixProvider() => new ReplaceWithIfDirective();
 
-        private DiagnosticResult Expected(int row, int col) =>
-            new DiagnosticResult
-            {
-                Id = OptimizableDiagnosticId,
-                Message = OptimizableMessageFormat.ToString(),
-                Severity = DiagnosticSeverity.Info,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", row, col) }
-            };
-
         [Fact(DisplayName = "Empty document should report no diagnostics")]
         public void EmptyDoc() => VerifyCSharpDiagnostic("");
 
@@ -47,7 +38,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 9));
+            VerifyCSharpDiagnostic(test, OptimizeDiagnostic(7, 9));
         }
 
         [Fact(DisplayName = "Method argument as source")]
@@ -62,7 +53,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(5, 9));
+            VerifyCSharpDiagnostic(test, OptimizeDiagnostic(5, 9));
         }
 
         [Fact(DisplayName = "Class field as source")]
@@ -78,7 +69,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 9));
+            VerifyCSharpDiagnostic(test, OptimizeDiagnostic(7, 9));
         }
 
         [Fact(DisplayName = "Delegate as lambda")]
@@ -93,7 +84,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(5, 9));
+            VerifyCSharpDiagnostic(test, OptimizeDiagnostic(5, 9));
         }
 
         [Fact(DisplayName = "Proper formatting")]
@@ -111,7 +102,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(8, 9));
+            VerifyCSharpDiagnostic(test, OptimizeDiagnostic(8, 9));
 
             var fixtest = @"
 using System.Linq;

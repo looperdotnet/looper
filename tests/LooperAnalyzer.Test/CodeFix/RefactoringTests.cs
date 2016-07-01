@@ -14,22 +14,13 @@ using Xunit.Abstractions;
 
 namespace LooperAnalyzer.Test
 {
-    public class RefactorToStatementTests : CodeFixVerifier
+    public class RefactoringTests : CodeFixVerifier
     {
-        public RefactorToStatementTests(ITestOutputHelper output) : base(output)
+        public RefactoringTests(ITestOutputHelper output) : base(output)
         {
         }
 
         protected override CodeFixProvider GetCSharpCodeFixProvider() => new RefactorToStatement();
-
-        private DiagnosticResult Expected(int row, int col) =>
-            new DiagnosticResult
-            {
-                Id = NeedsRefactoringDiagnosticId,
-                Message = NeedsRefactoringMessageFormat.ToString(),
-                Severity = DiagnosticSeverity.Info,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", row, col) }
-            };
 
         [Fact(DisplayName = "QueryExprStmt declaration should not produce refactoring diagnostics")]
         public void DeclarationNoDiagnostics()
@@ -75,7 +66,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 22));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 22));
 
             var fixtest = @"
 using System.Linq;
@@ -106,7 +97,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 13));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 13));
 
             var fixtest = @"
 using System.Linq;
@@ -136,7 +127,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(6, 22));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(6, 22));
 
             var fixtest = @"
 using System.Linq;
@@ -164,7 +155,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 9));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 9));
 
             var fixtest = @"
 using System.Linq;
@@ -194,7 +185,7 @@ class TestClass
     }
 }
 ";
-            VerifyCSharpDiagnostic(test, Expected(7, 13));
+            VerifyCSharpDiagnostic(test, RefactoringDiagnostic(7, 13));
 
             var fixtest = @"
 using System.Linq;

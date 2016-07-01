@@ -18,15 +18,6 @@ namespace LooperAnalyzer.Test
     {
         public NoConsumerDiagnosticTests(ITestOutputHelper output) : base(output) { }
 
-        private DiagnosticResult Expected(int row, int col) =>
-            new DiagnosticResult
-            {
-                Id = NoConsumerDiagnosticId,
-                Message = NoConsumerMessageFormat.ToString(),
-                Severity = DiagnosticSeverity.Warning,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", row, col) }
-            };
-
         [Fact(DisplayName = "Using ifdef without consumer")]
         public void NoConsumer()
         {
@@ -42,7 +33,7 @@ namespace LooperAnalyzer.Test
             }
         }";
 
-            VerifyCSharpDiagnostic(test, Expected(5, 0));
+            VerifyCSharpDiagnostic(test, NoConsumerDiagnostic(5, 0));
         }
     }
 }

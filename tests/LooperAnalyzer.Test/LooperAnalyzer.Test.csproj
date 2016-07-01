@@ -77,14 +77,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeFix\RefactorAndMarkWithIfDirectiveTests.cs" />
+    <Compile Include="CodeFix\RefactorAndOptimizeTests.cs" />
     <Compile Include="CodeFix\NoConsumerDiagnosticTests.cs" />
     <Compile Include="CodeFix\InvalidExpressionDiagnosticTests.cs" />
-    <Compile Include="CodeFix\RefactorToStatementTests.cs" />
+    <Compile Include="CodeFix\RefactoringTests.cs" />
     <Compile Include="CodeFix\OptimizerTests.cs" />
     <Compile Include="CodeGen\FsCheckCodeGenTests.cs" />
     <Compile Include="CodeGen\CodeGenTests.cs" />
     <Compile Include="Helpers\CodeGenTestsHelper.cs" />
+    <Compile Include="Helpers\DiagnosticResultHelper.cs" />
     <Compile Include="Helpers\ScriptResultHelpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Helpers\CodeFixVerifier.cs" />
