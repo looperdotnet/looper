@@ -55,18 +55,13 @@
             let count = gen.Generate "count"
             let varDeclStmt = parseStmtf "var %s = 0;" count
             let assignStmt = parseStmtf "++%s;" count
-            let k _ = block [assignStmt; k (parseExpr count)] :> StatementSyntax
+            let k _ = block [ assignStmt; k (parseExpr count)] :> StatementSyntax
             let loopStmt = compileQuery query gen model k
             block [varDeclStmt; loopStmt] :> _
         | Any query -> 
-            let any = gen.Generate "any"
-            let varDeclStmt = parseStmtf "var %s = false;" any
-            let k _ = 
-                block [ parseStmtf "%s = true;" any
-                        k (parseExpr any)
-                        breakStmt() ] :> StatementSyntax
+            let k _ = block [ k (parseExpr "true"); breakStmt() ] :> StatementSyntax
             let loopStmt = compileQuery query gen model k
-            block [varDeclStmt; loopStmt] :> _
+            block [loopStmt] :> _
         | _ -> throwNotImplemented :> _
 
     let compile (query : StmtQueryExpr) (model : SemanticModel) : StatementSyntax =

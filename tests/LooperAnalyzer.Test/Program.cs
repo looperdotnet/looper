@@ -9,9 +9,9 @@ namespace LooperAnalyzer.Test.Scripts
     {
         public static void Main(string[] args)
         {
-            var tests = new RefactoringTests(new ConsoleOutputHelper());
+            var tests = new CodeGenTests(new ConsoleOutputHelper());
 
-            tests.Assignment();
+            tests.ForAllSelectAny();
         }
 
         class ConsoleOutputHelper : ITestOutputHelper
