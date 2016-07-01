@@ -4,6 +4,13 @@ open Microsoft.CodeAnalysis
 open System.Collections.Generic
 
 
+[<AutoOpen>]
+module SymbolPatterns =
+    let (|ArrayType|_|) (symbol : ISymbol) = 
+        match symbol with
+        | :? IArrayTypeSymbol as s -> Some s
+        | _ -> None
+
 /// Wrapper around semantic model
 type SymbolChecker(model : SemanticModel) = 
     let compilation = model.Compilation
@@ -25,16 +32,9 @@ type SymbolChecker(model : SemanticModel) =
                                      || allLinqMethods.Contains s -> Some s
         | _ -> None
     
-    member __.IsIEnumerableType(symbol : ISymbol) = 
+    member __.IsIEnumerableType(symbol : ISymbol) : ITypeSymbol option = 
         match symbol with
-        | :? INamedTypeSymbol as s when s.OriginalDefinition = genericIEnumerableType 
-                                        || s.OriginalDefinition.AllInterfaces.Contains(genericIEnumerableType) -> Some s
-        | _ -> None
-
-
-[<AutoOpen>]
-module SymbolPatterns =
-    let (|ArrayType|_|) (symbol : ISymbol) = 
-        match symbol with
-        | :? IArrayTypeSymbol as s -> Some s
+        | ArrayType s -> Some (s :> _)
+        | :? INamedTypeSymbol as s when s.OriginalDefinition.Equals genericIEnumerableType 
+                                        || s.OriginalDefinition.AllInterfaces.Contains(genericIEnumerableType) -> Some (s :> _)
         | _ -> None

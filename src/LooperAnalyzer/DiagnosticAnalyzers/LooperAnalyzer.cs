@@ -41,7 +41,7 @@ namespace LooperAnalyzer
                 }
                 else if(node is NoConsumer) {
                     var n = (NoConsumer)node;
-                    diagnostic = Diagnostic.Create(NoConsumerRule, n.stmt.GetLocation());
+                    diagnostic = Diagnostic.Create(NoConsumerRule, n.trivia.GetLocation());
                 }
                 else if(node is MarkedWithDirective) {
                     var n = (MarkedWithDirective)node;

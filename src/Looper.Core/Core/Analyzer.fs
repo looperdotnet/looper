@@ -14,7 +14,7 @@
     // A node marked with Looper trivia but not a valid Linq expression.
     | Invalid of node: SyntaxNode * trivia: SyntaxTrivia
     // A node marked with Looper trivia, that is a valid Linq expression but has no consumer.
-    | NoConsumer of stmt: SyntaxNode
+    | NoConsumer of stmt: SyntaxNode * trivia : SyntaxTrivia
     // A valid Looper expr marked with Looper conditional trivia.
     | MarkedWithDirective of stmt: StatementSyntax * generated: SyntaxList<StatementSyntax> * isStale: bool
     // A valid Looper expr that needs refactoring before optimization.
@@ -42,7 +42,7 @@
                 if triviaMark.IsNone then
                     nodes.Add(Optimizable node)
             | StmtNoConsumerQuery checker _ when triviaMark.IsSome ->
-                nodes.Add(NoConsumer node)
+                nodes.Add(NoConsumer (node, triviaMark.Value))
             | QueryExpr checker _ when Option.isSome(refactor (model.SyntaxTree.GetRoot()) model node) ->
                 nodes.Add(NeedsRefactoring(node :?> InvocationExpressionSyntax))
             | _ ->

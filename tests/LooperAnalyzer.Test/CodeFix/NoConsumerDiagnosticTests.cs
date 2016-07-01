@@ -22,18 +22,19 @@ namespace LooperAnalyzer.Test
         public void NoConsumer()
         {
             var test = @"
-        class TestClass
-        {
-            void Method() {
+using System.Linq;
+class TestClass
+{
+    void Method() {
 #if !LOOPER
-            var xs = Enumerable.Range(0,1).Select(x => x + 1);
+    var xs = Enumerable.Range(0,1).Select(x => x + 1);
 #else
-            ;
+    ;
 #endif   
-            }
-        }";
+    }
+}";
 
-            VerifyCSharpDiagnostic(test, NoConsumerDiagnostic(5, 0));
+            VerifyCSharpDiagnostic(test, NoConsumerDiagnostic(6, 1));
         }
     }
 }

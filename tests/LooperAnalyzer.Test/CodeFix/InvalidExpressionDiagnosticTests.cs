@@ -24,17 +24,17 @@ namespace LooperAnalyzer.Test
         public void InvalidExpr()
         {
             var test = @"
-        class TestClass
-        {
-            void Method() {
+class TestClass
+{
+    void Method() {
 #if !LOOPER
-            var xs = 42;
+    var xs = 42;
 #else
-            ;
+    ;
 #endif   
-            }
-        }";
-            VerifyCSharpDiagnostic(test, InvalidExpressionDiagnostic(5,0));
+    }
+}";
+            VerifyCSharpDiagnostic(test, InvalidExpressionDiagnostic(5,1));
         }
     }
 }

@@ -7,7 +7,7 @@
     type QueryExpr =
         // Producer
         | SourceIdentifierName of ITypeSymbol * IdentifierNameSyntax
-        | SourceExpression of ExpressionSyntax
+        | SourceExpression of ITypeSymbol * ExpressionSyntax
         // Intermediate 
         | Select of Lambda * QueryExpr
         | SelectMany of (ParameterSyntax * QueryExpr) * QueryExpr

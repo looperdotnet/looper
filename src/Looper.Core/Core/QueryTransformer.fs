@@ -20,7 +20,10 @@
             match checker.SemanticModel.GetSymbolInfo(node).Symbol with
             | :? ILocalSymbol as symbol -> Some (SourceIdentifierName (symbol.Type, node :?> IdentifierNameSyntax))
             | _ -> None
-        | :? ExpressionSyntax as expr -> Some(SourceExpression expr)
+        | Expression expr -> 
+            checker.SemanticModel.GetTypeInfo(node).Type
+            |> checker.IsIEnumerableType
+            |> Option.map(fun sym -> SourceExpression (sym, expr))
         | _ -> None
 
     and private intermediateMatch (node : SyntaxNode) (checker : SymbolChecker) : QueryExpr option = 
@@ -66,7 +69,7 @@
 
     and (|NoConsumerQuery|_|) (checker : SymbolChecker) (node : SyntaxNode) =
         match intermediateMatch node checker with
-        | Some _ as m when producerMatch node checker = None -> m
+        | Some _ as m when consumerMatch node checker = None -> m
         | _ -> None
 
     and (|StmtNoConsumerQuery|_|) (checker : SymbolChecker) (node : SyntaxNode)  =

@@ -10,7 +10,7 @@
     let rec compileQuery (query : QueryExpr) (gen : FreshNameGen) (model : SemanticModel) (k : ExpressionSyntax -> StatementSyntax) : StatementSyntax =
         
         match query with
-        | SourceExpression expr ->
+        | SourceExpression(sym, expr) ->
             let item = gen.Generate "item"
             let foreachStmt = parseForeach item (toStr expr)
             let stmt = k (parseExpr item)
